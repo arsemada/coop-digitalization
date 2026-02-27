@@ -1,11 +1,12 @@
 package com.coop.member.dto;
 
-import com.coop.member.entity.MemberStatus;
+import com.coop.savings.entity.SavingsCategory;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class CreateMemberRequest {
@@ -26,4 +27,7 @@ public class CreateMemberRequest {
     private String woreda;
     private String kebele;
     private String houseNumber;
+
+    @NotEmpty(message = "At least one savings category is required")
+    private List<SavingsCategory> savingsCategories;
 }

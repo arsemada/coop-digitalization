@@ -12,6 +12,11 @@ import com.coop.member.dto.MemberResponse;
 import com.coop.member.entity.Member;
 import com.coop.member.entity.MemberStatus;
 import com.coop.member.repository.MemberRepository;
+import com.coop.savings.entity.MemberSavingsAccount;
+import com.coop.savings.entity.SavingsCategory;
+import com.coop.savings.entity.SavingsProduct;
+import com.coop.savings.repository.MemberSavingsAccountRepository;
+import com.coop.savings.repository.SavingsProductRepository;
 import com.coop.user.entity.Role;
 import com.coop.user.entity.User;
 import com.coop.user.repository.UserRepository;
@@ -21,7 +26,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,6 +43,8 @@ public class MemberService {
     private final InstitutionRepository institutionRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SavingsProductRepository savingsProductRepository;
+    private final MemberSavingsAccountRepository memberSavingsAccountRepository;
 
     @Transactional
     public CreateMemberResponse create(CreateMemberRequest request) {
@@ -86,6 +95,28 @@ public class MemberService {
         user.setActive(true);
         user.setMustChangePassword(true);
         userRepository.save(user);
+
+        if (request.getSavingsCategories() != null && !request.getSavingsCategories().isEmpty()) {
+            for (SavingsCategory cat : request.getSavingsCategories()) {
+                SavingsProduct product = savingsProductRepository.findBySaccoIdAndCategory(sacco.getId(), cat)
+                        .orElseGet(() -> {
+                            SavingsProduct p = new SavingsProduct();
+                            p.setSacco(sacco);
+                            p.setName(cat.name());
+                            p.setCategory(cat);
+                            p.setInterestRate(BigDecimal.ZERO);
+                            p.setRequiresMaturity(false);
+                            return savingsProductRepository.save(p);
+                        });
+                if (memberSavingsAccountRepository.findByMemberIdAndSavingsProductId(member.getId(), product.getId()).isEmpty()) {
+                    MemberSavingsAccount account = new MemberSavingsAccount();
+                    account.setMember(member);
+                    account.setSavingsProduct(product);
+                    account.setOpenedDate(LocalDate.now());
+                    memberSavingsAccountRepository.save(account);
+                }
+            }
+        }
 
         return CreateMemberResponse.builder()
                 .member(toResponse(member))

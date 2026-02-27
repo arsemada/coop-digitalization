@@ -8,6 +8,19 @@ const STATUS_BADGE = {
   INACTIVE: 'bg-slate-200 text-slate-600',
 };
 
+const SAVINGS_CATEGORIES = [
+  { value: 'REGULAR', label: 'Regular' },
+  { value: 'VOLUNTARY', label: 'Voluntary' },
+  { value: 'TIME_DEPOSIT', label: 'Time Deposit' },
+  { value: 'SPECIAL', label: 'Special' },
+  { value: 'EDUCATIONAL', label: 'Educational' },
+  { value: 'YOUTH', label: 'Youth' },
+  { value: 'EMERGENCY', label: 'Emergency' },
+  { value: 'HOLIDAY', label: 'Holiday' },
+  { value: 'PENSION', label: 'Pension' },
+  { value: 'CREDIT_LIFE', label: 'Credit Life' },
+];
+
 export default function MembersPage() {
   const { user } = useAuth();
   const [members, setMembers] = useState([]);
@@ -23,6 +36,7 @@ export default function MembersPage() {
     woreda: '',
     kebele: '',
     houseNumber: '',
+    savingsCategories: [],
   });
 
   const saccoId = user?.institutionId;
@@ -47,10 +61,11 @@ export default function MembersPage() {
     e.preventDefault();
     setError('');
     setOtpResult(null);
-    api.post('/members', { ...form, ...(saccoId != null && { saccoId }) })
+    const payload = { ...form, ...(saccoId != null && { saccoId }) };
+    api.post('/members', payload)
       .then(({ data }) => {
         if (data?.success && data?.data) {
-          setForm({ fullName: '', phone: '', joinDate: new Date().toISOString().slice(0, 10), region: '', woreda: '', kebele: '', houseNumber: '' });
+          setForm({ fullName: '', phone: '', joinDate: new Date().toISOString().slice(0, 10), region: '', woreda: '', kebele: '', houseNumber: '', savingsCategories: [] });
           setShowCreate(false);
           fetchMembers();
           if (data.data.otp) {
@@ -167,8 +182,37 @@ export default function MembersPage() {
                 className="w-full rounded-lg border border-bronze/30 px-3 py-2 focus:border-forest"
               />
             </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-polished mb-2">Savings Categories *</label>
+              <p className="text-xs text-polished/70 mb-2">Select one or more. A savings account will be created for each. Required.</p>
+              <div className="flex flex-wrap gap-3">
+                {SAVINGS_CATEGORIES.map((cat) => (
+                  <label key={cat.value} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.savingsCategories?.includes(cat.value) ?? false}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setForm((f) => ({
+                          ...f,
+                          savingsCategories: checked
+                            ? [...(f.savingsCategories || []), cat.value]
+                            : (f.savingsCategories || []).filter((c) => c !== cat.value),
+                        }));
+                      }}
+                      className="rounded border-bronze/30 text-forest focus:ring-forest"
+                    />
+                    <span className="text-sm text-polished">{cat.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
           </div>
-          <button type="submit" className="mt-6 rounded-lg bg-forest px-6 py-2 font-semibold text-offwhite hover:bg-emerald">
+          <button
+            type="submit"
+            disabled={!form.savingsCategories?.length}
+            className="mt-6 rounded-lg bg-forest px-6 py-2 font-semibold text-offwhite hover:bg-emerald disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             Create
           </button>
         </form>

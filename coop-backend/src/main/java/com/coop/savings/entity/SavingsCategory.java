@@ -1,8 +1,14 @@
 package com.coop.savings.entity;
 
 public enum SavingsCategory {
-    SHARES,
-    VOLUNTARY_SAVINGS,
-    FIXED_DEPOSIT,
-    OTHER
+    REGULAR,
+    VOLUNTARY,
+    TIME_DEPOSIT,
+    SPECIAL,
+    EDUCATIONAL,
+    YOUTH,
+    EMERGENCY,
+    HOLIDAY,
+    PENSION,
+    CREDIT_LIFE
 }
