@@ -1,5 +1,29 @@
 # Docker and run options
 
+## If Maven fails with `TypeTag :: UNKNOWN` or `ExceptionInInitializerError`
+
+This is a **Lombok + JDK 24** compatibility issue. The project is built for **Java 21** and Lombok does not yet support JDK 24’s compiler internals.
+
+**Fix: use JDK 21 to compile and run.**
+
+- **Maven from command line**  
+  Set `JAVA_HOME` to a JDK 21 installation, then run `mvn clean install` / `mvn spring-boot:run`.
+
+  **PowerShell (one-liner, adjust path to your JDK 21):**
+  ```powershell
+  $env:JAVA_HOME="C:\Program Files\Eclipse Adoptium\jdk-21.0.x.x-hotspot"
+  mvn clean install -DskipTests
+  ```
+
+- **IntelliJ IDEA**  
+  - **File → Project Structure → Project** – set **Project SDK** to **21**.  
+  - **File → Settings → Build, Execution, Deployment → Compiler → Java Compiler** – set **Project bytecode version** to **21** and ensure the `coop-backend` module uses **21**.  
+  - **File → Invalidate Caches → Invalidate and Restart** (optional, if the error persists).
+
+After switching to JDK 21, the build should succeed.
+
+---
+
 ## If `docker compose up --build` fails with "connection refused"
 
 The error means Docker cannot reach the image registry (Docker Hub via Cloudflare). **Until your network allows that connection, use the [Run without Docker](#run-without-docker-when-pulls-keep-failing) option below.**
