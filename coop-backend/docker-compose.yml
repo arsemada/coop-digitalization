@@ -1,0 +1,44 @@
+services:
+
+  postgres:
+    image: postgres:15
+    container_name: coop_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: coopdb
+      POSTGRES_USER: coop
+      POSTGRES_PASSWORD: coop
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - coop_network
+
+  backend:
+    build: .
+    container_name: coop_backend
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/coopdb
+      SPRING_DATASOURCE_USERNAME: coop
+      SPRING_DATASOURCE_PASSWORD: coop
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+      JWT_SECRET: ${JWT_SECRET:-super-secure-production-secret-key-256-bits}
+      JWT_EXPIRATION: 86400000
+      JWT_REFRESH_EXPIRATION: 86400000
+
+    networks:
+      - coop_network
+
+volumes:
+  postgres_data:
+
+networks:
+  coop_network:
+    driver: bridge

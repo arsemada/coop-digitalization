@@ -1,0 +1,21 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+*.iml
+.vscode
+*.swp
+*.swo
+
+# Build output (we build inside container)
+target/
+
+# Logs and temp
+*.log
+*.tmp
+.DS_Store
+
+# Maven wrapper (optional; use if you want to lock Maven version)
+# .mvn
