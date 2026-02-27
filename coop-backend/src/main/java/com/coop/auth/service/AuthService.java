@@ -1,5 +1,6 @@
 package com.coop.auth.service;
 
+import com.coop.auth.dto.ChangePasswordRequest;
 import com.coop.auth.dto.LoginRequest;
 import com.coop.auth.dto.LoginResponse;
 import com.coop.auth.dto.RegisterUserRequest;
@@ -28,9 +29,11 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public LoginResponse login(LoginRequest request) {
+        String username = request.getUsername() != null ? request.getUsername().trim() : "";
+        String password = request.getPassword() != null ? request.getPassword().trim() : "";
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-        User user = userRepository.findByUsername(request.getUsername())
+                new UsernamePasswordAuthenticationToken(username, password));
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND.value()));
         String token = jwtService.generateToken(
                 user.getUsername(),
@@ -43,6 +46,7 @@ public class AuthService {
                 .role(user.getRole().name())
                 .institutionId(user.getInstitution() != null ? user.getInstitution().getId() : null)
                 .institutionName(institutionName)
+                .mustChangePassword(user.isMustChangePassword())
                 .build();
     }
 
@@ -61,5 +65,17 @@ public class AuthService {
             user.setInstitution(inst);
         }
         return userRepository.save(user);
+    }
+
+    @Transactional
+    public void changePassword(String username, ChangePasswordRequest request) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND.value()));
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new CustomException("Current password (OTP) is incorrect", HttpStatus.BAD_REQUEST.value());
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setMustChangePassword(false);
+        userRepository.save(user);
     }
 }

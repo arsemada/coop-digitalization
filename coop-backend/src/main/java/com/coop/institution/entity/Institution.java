@@ -31,4 +31,13 @@ public class Institution extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private InstitutionStatus status = InstitutionStatus.PENDING_APPROVAL;
+
+    @Column(name = "applicant_username")
+    private String applicantUsername;
+
+    @Column(name = "applicant_email")
+    private String applicantEmail;
+
+    @Column(name = "applicant_phone")
+    private String applicantPhone;
 }

@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Coop Digitalization Brand Theme */
+:root {
+  --color-forest: #004B33;
+  --color-emerald: #0A7A54;
+  --color-champagne: #C5A384;
+  --color-bronze: #8E6D52;
+  --color-black: #111111;
+  --color-offwhite: #F2F0ED;
+}

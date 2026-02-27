@@ -22,6 +22,7 @@
 
     <properties>
         <java.version>21</java.version>
+        <maven.compiler.proc>full</maven.compiler.proc>
         <start-class>com.coop.CoopApplication</start-class>
     </properties>
 
@@ -77,11 +78,11 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Lombok (override version for JDK 21+ compatibility; use JDK 21 to avoid JDK 24 + Lombok TypeTag issue) -->
+        <!-- Lombok 1.18.38+ for JDK 24 compatibility (fixes TypeTag.UNKNOWN) -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.34</version>
+            <version>1.18.38</version>
             <optional>true</optional>
         </dependency>
 
@@ -103,7 +104,7 @@
     <build>
         <plugins>
 
-            <!-- Compiler Plugin (Java 21 + Lombok). Use JDK 21 to compile (Lombok fails with JDK 24). -->
+            <!-- Compiler Plugin (Java 21 + Lombok 1.18.38 for JDK 23/24 compatibility) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -118,7 +119,7 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.34</version>
+                            <version>1.18.38</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>

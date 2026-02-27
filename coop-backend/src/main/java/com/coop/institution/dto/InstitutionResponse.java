@@ -25,4 +25,7 @@ public class InstitutionResponse {
     private String houseNumber;
     private InstitutionStatus status;
     private Instant createdAt;
+    private String applicantUsername;
+    private String applicantEmail;
+    private String applicantPhone;
 }

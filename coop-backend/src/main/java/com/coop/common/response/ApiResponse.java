@@ -17,6 +17,12 @@ public class ApiResponse<T> {
     private String message;
     private T data;
 
+    public static ApiResponse<Void> success() {
+        return ApiResponse.<Void>builder()
+                .success(true)
+                .build();
+    }
+
     public static <T> ApiResponse<T> success(T data) {
         return ApiResponse.<T>builder()
                 .success(true)

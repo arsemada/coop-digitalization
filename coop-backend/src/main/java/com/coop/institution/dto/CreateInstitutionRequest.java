@@ -20,4 +20,9 @@ public class CreateInstitutionRequest {
     private String woreda;
     private String kebele;
     private String houseNumber;
+
+    /** Admin username for the account created on approval (OTP flow) */
+    private String applicantUsername;
+    private String applicantEmail;
+    private String applicantPhone;
 }

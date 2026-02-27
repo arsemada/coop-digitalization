@@ -16,4 +16,5 @@ public class LoginResponse {
     private String role;
     private Long institutionId;
     private String institutionName;
+    private boolean mustChangePassword;
 }

@@ -15,6 +15,7 @@ export function AuthProvider({ children }) {
         role: res.data.role,
         institutionId: res.data.institutionId,
         institutionName: res.data.institutionName,
+        mustChangePassword: res.data.mustChangePassword ?? false,
       });
       return res;
     }

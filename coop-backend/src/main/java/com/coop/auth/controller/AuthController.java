@@ -1,14 +1,14 @@
 package com.coop.auth.controller;
 
+import com.coop.auth.dto.ChangePasswordRequest;
 import com.coop.auth.dto.LoginRequest;
 import com.coop.auth.dto.LoginResponse;
-import com.coop.auth.dto.RegisterUserRequest;
 import com.coop.auth.service.AuthService;
 import com.coop.common.response.ApiResponse;
-import com.coop.user.entity.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,10 +23,11 @@ public class AuthController {
         return ApiResponse.success(authService.login(request));
     }
 
-    @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<String> register(@Valid @RequestBody RegisterUserRequest request) {
-        User user = authService.register(request);
-        return ApiResponse.success("User registered successfully", user.getUsername());
+    @PostMapping("/change-password")
+    public ApiResponse<Void> changePassword(
+            @AuthenticationPrincipal UserDetails user,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        authService.changePassword(user.getUsername(), request);
+        return ApiResponse.success();
     }
 }

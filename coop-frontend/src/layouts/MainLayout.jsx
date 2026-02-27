@@ -1,8 +1,13 @@
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function MainLayout() {
   const { user, logout } = useAuth();
+  const location = useLocation();
+
+  if (user?.mustChangePassword && !location.pathname.endsWith('/change-password')) {
+    return <Navigate to="/change-password" replace />;
+  }
 
   const nav = [
     { to: '/dashboard', label: 'Dashboard' },
@@ -15,24 +20,26 @@ export default function MainLayout() {
   ].filter((item) => !item.roles || (user?.role && item.roles.includes(user.role)));
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-slate-800 text-white shadow">
+    <div className="min-h-screen bg-offwhite">
+      <header className="border-b border-champagne/20 bg-forest text-offwhite shadow-md">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-          <span className="font-semibold">Coop Digitalization</span>
-          <nav className="flex items-center gap-4">
+          <Link to="/dashboard" className="font-bold tracking-tight text-offwhite hover:text-champagne transition-colors">
+            Coop<span className="text-champagne">Digital</span>
+          </Link>
+          <nav className="flex items-center gap-6">
             {nav.map(({ to, label }) => (
-              <Link key={to} to={to} className="hover:text-slate-200">
+              <Link key={to} to={to} className="text-sm font-medium text-offwhite/90 hover:text-champagne transition-colors">
                 {label}
               </Link>
             ))}
-            <span className="text-slate-400">
-              {user?.username} ({user?.role})
+            <span className="text-sm text-offwhite/70">
+              {user?.username} <span className="text-champagne/80">({user?.role})</span>
               {user?.institutionName && ` · ${user.institutionName}`}
             </span>
             <button
               type="button"
               onClick={logout}
-              className="rounded bg-slate-600 px-3 py-1 text-sm hover:bg-slate-500"
+              className="rounded-lg border border-champagne/40 px-4 py-1.5 text-sm font-medium hover:bg-champagne/20 transition-colors"
             >
               Logout
             </button>

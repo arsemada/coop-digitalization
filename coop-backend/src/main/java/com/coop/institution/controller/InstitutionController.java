@@ -1,10 +1,14 @@
 package com.coop.institution.controller;
 
+import com.coop.common.exception.CustomException;
+import com.coop.config.security.SecurityUtils;
+import com.coop.institution.dto.ApproveInstitutionResponse;
 import com.coop.institution.dto.CreateInstitutionRequest;
 import com.coop.institution.dto.InstitutionResponse;
 import com.coop.institution.entity.InstitutionType;
 import com.coop.institution.service.InstitutionService;
 import com.coop.common.response.ApiResponse;
+import com.coop.user.entity.Role;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,8 +26,18 @@ public class InstitutionController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'UNION_ADMIN')")
     public ApiResponse<InstitutionResponse> create(@Valid @RequestBody CreateInstitutionRequest request) {
+        if (SecurityUtils.getCurrentRole() == Role.UNION_ADMIN && request.getType() != InstitutionType.SACCO) {
+            throw new CustomException("Unions can only create SACCOs", HttpStatus.BAD_REQUEST.value());
+        }
+        return ApiResponse.success(institutionService.create(request));
+    }
+
+    /** Public: SACCOs/Unions apply for registration. Creates with PENDING_APPROVAL; SUPER_ADMIN approves later. */
+    @PostMapping("/apply")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<InstitutionResponse> apply(@Valid @RequestBody CreateInstitutionRequest request) {
         return ApiResponse.success(institutionService.create(request));
     }
 
@@ -43,7 +57,7 @@ public class InstitutionController {
 
     @PostMapping("/{id}/approve")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ApiResponse<InstitutionResponse> approve(@PathVariable Long id) {
+    public ApiResponse<ApproveInstitutionResponse> approve(@PathVariable Long id) {
         return ApiResponse.success(institutionService.approve(id));
     }
 }

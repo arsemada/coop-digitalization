@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Data
 public class CreateMemberRequest {
 
-    @NotBlank(message = "Member number is required")
+    /** Optional: if omitted, a unique member number (SACCO account) is auto-generated. */
     private String memberNumber;
 
     @NotBlank(message = "Full name is required")
@@ -19,7 +19,7 @@ public class CreateMemberRequest {
     private String phone;
     private LocalDate joinDate;
 
-    @NotNull(message = "SACCO is required")
+    /** SACCO ID. For SACCO staff, can be omitted—their institution is used. */
     private Long saccoId;
 
     private String region;

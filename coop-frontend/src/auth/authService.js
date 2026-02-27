@@ -5,11 +5,6 @@ export const login = async (username, password) => {
   return data;
 };
 
-export const register = async (payload) => {
-  const { data } = await api.post('/auth/register', payload);
-  return data;
-};
-
 export const logout = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
@@ -34,6 +29,7 @@ export const storeAuth = (loginResponse) => {
         role: loginResponse.role,
         institutionId: loginResponse.institutionId,
         institutionName: loginResponse.institutionName,
+        mustChangePassword: loginResponse.mustChangePassword ?? false,
       })
     );
   }

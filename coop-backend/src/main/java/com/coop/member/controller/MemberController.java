@@ -2,6 +2,7 @@ package com.coop.member.controller;
 
 import com.coop.common.response.ApiResponse;
 import com.coop.member.dto.CreateMemberRequest;
+import com.coop.member.dto.CreateMemberResponse;
 import com.coop.member.dto.MemberResponse;
 import com.coop.member.service.MemberService;
 import jakarta.validation.Valid;
@@ -22,7 +23,8 @@ public class MemberController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<MemberResponse> create(@Valid @RequestBody CreateMemberRequest request) {
+    @PreAuthorize("hasAnyRole('SACCO_ADMIN', 'SACCO_EMPLOYEE')")
+    public ApiResponse<CreateMemberResponse> create(@Valid @RequestBody CreateMemberRequest request) {
         return ApiResponse.success(memberService.create(request));
     }
 
