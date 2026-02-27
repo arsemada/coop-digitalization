@@ -9,8 +9,7 @@
 *.swp
 *.swo
 
-# Build output (we build inside container)
-target/
+# target/ is included so COPY can get the JAR (build with: ./mvnw package -DskipTests)
 
 # Logs and temp
 *.log

@@ -3,7 +3,7 @@ services:
   postgres:
     image: postgres:15
     container_name: coop_postgres
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_DB: coopdb
       POSTGRES_USER: coop
@@ -12,15 +12,23 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d   # <-- automatically runs SQL scripts on first start
     networks:
       - coop_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coop -d coopdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
-    build: .
+    build:
+      context: .
     container_name: coop_backend
-    restart: always
+    restart: unless-stopped
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     ports:
       - "8080:8080"
     environment:
@@ -28,11 +36,9 @@ services:
       SPRING_DATASOURCE_USERNAME: coop
       SPRING_DATASOURCE_PASSWORD: coop
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-
       JWT_SECRET: ${JWT_SECRET:-super-secure-production-secret-key-256-bits}
       JWT_EXPIRATION: 86400000
       JWT_REFRESH_EXPIRATION: 86400000
-
     networks:
       - coop_network
 
