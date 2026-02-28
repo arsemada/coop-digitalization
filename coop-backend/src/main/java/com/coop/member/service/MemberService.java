@@ -1,6 +1,7 @@
 package com.coop.member.service;
 
 import com.coop.common.exception.CustomException;
+import com.coop.email.EmailService;
 import com.coop.config.security.SecurityUtils;
 import com.coop.institution.entity.Institution;
 import com.coop.institution.entity.InstitutionStatus;
@@ -45,6 +46,7 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final SavingsProductRepository savingsProductRepository;
     private final MemberSavingsAccountRepository memberSavingsAccountRepository;
+    private final EmailService emailService;
 
     @Transactional
     public CreateMemberResponse create(CreateMemberRequest request) {
@@ -73,9 +75,14 @@ public class MemberService {
         if (memberRepository.existsByMemberNumberAndSaccoId(memberNumber, saccoId)) {
             throw new CustomException("Member number already exists in this SACCO", HttpStatus.CONFLICT.value());
         }
+        String email = request.getEmail() != null ? request.getEmail().trim().toLowerCase() : null;
+        if (email != null && !email.isBlank() && memberRepository.existsBySaccoIdAndEmail(saccoId, email)) {
+            throw new CustomException("Member with this email already exists in this SACCO", HttpStatus.CONFLICT.value());
+        }
         Member member = new Member();
         member.setMemberNumber(memberNumber);
         member.setFullName(request.getFullName());
+        member.setEmail(email != null && !email.isBlank() ? email : null);
         member.setPhone(request.getPhone());
         member.setJoinDate(request.getJoinDate() != null ? request.getJoinDate() : java.time.LocalDate.now());
         member.setSacco(sacco);
@@ -95,6 +102,10 @@ public class MemberService {
         user.setActive(true);
         user.setMustChangePassword(true);
         userRepository.save(user);
+
+        if (request.getEmail() != null && !request.getEmail().isBlank()) {
+            emailService.sendOtp(request.getEmail(), memberNumber, otp, sacco.getName());
+        }
 
         if (request.getSavingsCategories() != null && !request.getSavingsCategories().isEmpty()) {
             for (SavingsCategory cat : request.getSavingsCategories()) {
@@ -142,10 +153,27 @@ public class MemberService {
         return "SACCO-" + saccoId + "-" + seq + "-" + suffix;
     }
 
+    public MemberResponse getByUsername(String username) {
+        var member = memberRepository.findByMemberNumber(username)
+                .orElseThrow(() -> new CustomException("Member not found", HttpStatus.NOT_FOUND.value()));
+        if (!SecurityUtils.canAccessInstitution(member.getSacco().getId())) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN.value());
+        }
+        return toResponse(member);
+    }
+
     public MemberResponse getById(Long id) {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new CustomException("Member not found", HttpStatus.NOT_FOUND.value()));
         return toResponse(member);
+    }
+
+    public MemberResponse getCurrentMember() {
+        var user = SecurityUtils.getCurrentUser();
+        if (user == null || user.getRole() != Role.MEMBER) return null;
+        return memberRepository.findByMemberNumber(user.getUsername())
+                .map(this::toResponse)
+                .orElse(null);
     }
 
     public List<MemberResponse> listBySacco(Long saccoId) {
@@ -161,6 +189,7 @@ public class MemberService {
                 .memberNumber(m.getMemberNumber())
                 .fullName(m.getFullName())
                 .phone(m.getPhone())
+                .email(m.getEmail())
                 .joinDate(m.getJoinDate())
                 .saccoId(m.getSacco().getId())
                 .saccoName(m.getSacco().getName())

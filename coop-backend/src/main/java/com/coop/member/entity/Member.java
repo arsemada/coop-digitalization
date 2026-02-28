@@ -22,6 +22,8 @@ public class Member extends BaseEntity {
 
     private String phone;
 
+    private String email;
+
     @Column(name = "join_date")
     private LocalDate joinDate;
 

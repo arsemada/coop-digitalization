@@ -13,4 +13,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Member> findBySaccoId(Long saccoId);
 
     boolean existsByMemberNumberAndSaccoId(String memberNumber, Long saccoId);
+
+    boolean existsBySaccoIdAndEmail(Long saccoId, String email);
 }

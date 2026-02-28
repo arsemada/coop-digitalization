@@ -1,8 +1,11 @@
 package com.coop.institution.service;
 
 import com.coop.common.exception.CustomException;
+import com.coop.config.security.SecurityUtils;
+import com.coop.email.EmailService;
 import com.coop.institution.dto.ApproveInstitutionResponse;
 import com.coop.institution.dto.CreateInstitutionRequest;
+import com.coop.institution.dto.UpdateInstitutionRequest;
 import com.coop.institution.dto.InstitutionResponse;
 import com.coop.institution.entity.Institution;
 import com.coop.institution.entity.InstitutionStatus;
@@ -17,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,6 +35,7 @@ public class InstitutionService {
     private final InstitutionRepository institutionRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @Transactional
     public InstitutionResponse create(CreateInstitutionRequest request) {
@@ -49,8 +54,31 @@ public class InstitutionService {
         inst.setApplicantUsername(request.getApplicantUsername() != null ? request.getApplicantUsername().trim() : null);
         inst.setApplicantEmail(request.getApplicantEmail());
         inst.setApplicantPhone(request.getApplicantPhone());
+        inst.setDefaultLoanInterestRate(request.getDefaultLoanInterestRate() != null ? request.getDefaultLoanInterestRate() : BigDecimal.valueOf(12));
         inst.setStatus(InstitutionStatus.PENDING_APPROVAL);
         inst = institutionRepository.save(inst);
+        return toResponse(inst);
+    }
+
+    public InstitutionResponse getCurrentUserInstitution() {
+        Long institutionId = SecurityUtils.getCurrentInstitutionId();
+        if (institutionId == null) return null;
+        return institutionRepository.findById(institutionId).map(this::toResponse).orElse(null);
+    }
+
+    @Transactional
+    public InstitutionResponse updateDefaultLoanInterestRate(Long id, UpdateInstitutionRequest request) {
+        boolean canEdit = SecurityUtils.canAccessInstitution(id)
+                || SecurityUtils.hasAnyRole(Role.UNION_ADMIN, Role.SUPER_ADMIN);
+        if (!canEdit) {
+            throw new CustomException("Access denied to this institution", HttpStatus.FORBIDDEN.value());
+        }
+        Institution inst = institutionRepository.findById(id)
+                .orElseThrow(() -> new CustomException("Institution not found", HttpStatus.NOT_FOUND.value()));
+        if (request.getDefaultLoanInterestRate() != null && request.getDefaultLoanInterestRate().compareTo(BigDecimal.ZERO) >= 0) {
+            inst.setDefaultLoanInterestRate(request.getDefaultLoanInterestRate());
+            inst = institutionRepository.save(inst);
+        }
         return toResponse(inst);
     }
 
@@ -92,6 +120,9 @@ public class InstitutionService {
             user.setMustChangePassword(true);
             userRepository.save(user);
             username = inst.getApplicantUsername();
+            if (inst.getApplicantEmail() != null && !inst.getApplicantEmail().isBlank()) {
+                emailService.sendOtp(inst.getApplicantEmail(), username, otp, inst.getName());
+            }
         }
 
         return ApproveInstitutionResponse.builder()
@@ -125,6 +156,7 @@ public class InstitutionService {
                 .applicantUsername(inst.getApplicantUsername())
                 .applicantEmail(inst.getApplicantEmail())
                 .applicantPhone(inst.getApplicantPhone())
+                .defaultLoanInterestRate(inst.getDefaultLoanInterestRate() != null ? inst.getDefaultLoanInterestRate() : BigDecimal.valueOf(12))
                 .build();
     }
 }

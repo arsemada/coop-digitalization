@@ -28,8 +28,10 @@ export default function MembersPage() {
   const [error, setError] = useState('');
   const [otpResult, setOtpResult] = useState(null);
   const [showCreate, setShowCreate] = useState(() => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('create') === '1');
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     fullName: '',
+    email: '',
     phone: '',
     joinDate: new Date().toISOString().slice(0, 10),
     region: '',
@@ -59,13 +61,15 @@ export default function MembersPage() {
 
   const handleCreate = (e) => {
     e.preventDefault();
+    if (submitting) return;
     setError('');
     setOtpResult(null);
+    setSubmitting(true);
     const payload = { ...form, ...(saccoId != null && { saccoId }) };
     api.post('/members', payload)
       .then(({ data }) => {
         if (data?.success && data?.data) {
-          setForm({ fullName: '', phone: '', joinDate: new Date().toISOString().slice(0, 10), region: '', woreda: '', kebele: '', houseNumber: '', savingsCategories: [] });
+          setForm({ fullName: '', email: '', phone: '', joinDate: new Date().toISOString().slice(0, 10), region: '', woreda: '', kebele: '', houseNumber: '', savingsCategories: [] });
           setShowCreate(false);
           fetchMembers();
           if (data.data.otp) {
@@ -73,7 +77,8 @@ export default function MembersPage() {
           }
         }
       })
-      .catch((err) => setError(err.response?.data?.message || err.message || 'Create failed'));
+      .catch((err) => setError(err.response?.data?.message || err.message || 'Create failed'))
+      .finally(() => setSubmitting(false));
   };
 
   if (!saccoId && user?.role !== 'SUPER_ADMIN') {
@@ -126,6 +131,17 @@ export default function MembersPage() {
                 onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
                 className="w-full rounded-lg border border-bronze/30 px-3 py-2 focus:border-forest"
                 required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-polished mb-1">Email *</label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                className="w-full rounded-lg border border-bronze/30 px-3 py-2 focus:border-forest"
+                required
+                placeholder="OTP will be sent here"
               />
             </div>
             <div>
@@ -210,10 +226,10 @@ export default function MembersPage() {
           </div>
           <button
             type="submit"
-            disabled={!form.savingsCategories?.length}
+            disabled={!form.savingsCategories?.length || submitting}
             className="mt-6 rounded-lg bg-forest px-6 py-2 font-semibold text-offwhite hover:bg-emerald disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Create
+            {submitting ? 'Creating...' : 'Create'}
           </button>
         </form>
       )}

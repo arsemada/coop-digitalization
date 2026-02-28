@@ -19,6 +19,7 @@ public class MemberResponse {
     private String memberNumber;
     private String fullName;
     private String phone;
+    private String email;
     private LocalDate joinDate;
     private Long saccoId;
     private String saccoName;

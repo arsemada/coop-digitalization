@@ -11,12 +11,13 @@ export default function MainLayout() {
 
   const nav = [
     { to: '/dashboard', label: 'Dashboard' },
-    { to: '/members', label: 'Members', roles: ['SACCO_ADMIN', 'SACCO_EMPLOYEE', 'MEMBER'] },
+    { to: '/members', label: 'Members', roles: ['SACCO_ADMIN', 'SACCO_EMPLOYEE'] },
     { to: '/savings', label: 'Savings', roles: ['SACCO_ADMIN', 'SACCO_EMPLOYEE', 'MEMBER'] },
     { to: '/loans', label: 'Loans', roles: ['SACCO_ADMIN', 'SACCO_EMPLOYEE', 'MEMBER'] },
     { to: '/accounting', label: 'Accounting', roles: ['SUPER_ADMIN', 'UNION_ADMIN', 'SACCO_ADMIN'] },
     { to: '/reports', label: 'Reports', roles: ['SUPER_ADMIN', 'UNION_ADMIN', 'SACCO_ADMIN'] },
     { to: '/institutions', label: 'Institutions', roles: ['SUPER_ADMIN', 'UNION_ADMIN'] },
+    { to: '/settings', label: 'Settings', roles: ['SACCO_ADMIN', 'SACCO_EMPLOYEE', 'UNION_ADMIN'] },
   ].filter((item) => !item.roles || (user?.role && item.roles.includes(user.role)));
 
   return (
