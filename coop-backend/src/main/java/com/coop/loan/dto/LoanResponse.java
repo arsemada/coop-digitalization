@@ -25,6 +25,9 @@ public class LoanResponse {
     private BigDecimal principalAmount;
     private BigDecimal interestRate;
     private int termInMonths;
+    private Long collateralSavingsAccountId;
+    private String collateralAccountName;
+    private String loanReason;
     private LoanStatus status;
     private LocalDate disbursementDate;
     private BigDecimal outstandingBalance;

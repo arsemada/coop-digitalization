@@ -28,6 +28,12 @@ public class MemberController {
         return ApiResponse.success(memberService.create(request));
     }
 
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('MEMBER')")
+    public ApiResponse<MemberResponse> getCurrentMember() {
+        return ApiResponse.success(memberService.getCurrentMember());
+    }
+
     @GetMapping("/{id}")
     public ApiResponse<MemberResponse> getById(@PathVariable Long id) {
         return ApiResponse.success(memberService.getById(id));

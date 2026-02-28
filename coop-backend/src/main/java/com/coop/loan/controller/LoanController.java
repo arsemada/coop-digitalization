@@ -2,7 +2,6 @@ package com.coop.loan.controller;
 
 import com.coop.common.response.ApiResponse;
 import com.coop.loan.dto.*;
-import com.coop.loan.entity.LoanRepayment;
 import com.coop.loan.service.LoanService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,19 +26,28 @@ public class LoanController {
     }
 
     @PostMapping("/{loanId}/approve")
+    @PreAuthorize("hasAnyRole('SACCO_ADMIN', 'SACCO_EMPLOYEE')")
     public ApiResponse<LoanResponse> approve(@PathVariable Long loanId, @RequestBody LoanApprovalRequest request) {
         return ApiResponse.success(loanService.approve(loanId, request));
     }
 
     @PostMapping("/{loanId}/disburse")
+    @PreAuthorize("hasAnyRole('SACCO_ADMIN', 'SACCO_EMPLOYEE')")
     public ApiResponse<LoanResponse> disburse(@PathVariable Long loanId) {
         return ApiResponse.success(loanService.disburse(loanId));
     }
 
     @PostMapping("/repayments")
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<LoanRepayment> recordRepayment(@Valid @RequestBody LoanRepaymentRequest request) {
+    @PreAuthorize("hasAnyRole('SACCO_ADMIN', 'SACCO_EMPLOYEE', 'MEMBER')")
+    public ApiResponse<LoanRepaymentResponse> recordRepayment(@Valid @RequestBody LoanRepaymentRequest request) {
         return ApiResponse.success(loanService.recordRepayment(request));
+    }
+
+    @GetMapping("/repayments")
+    @PreAuthorize("hasAnyRole('SACCO_ADMIN', 'SACCO_EMPLOYEE')")
+    public ApiResponse<List<LoanRepaymentResponse>> listRepayments(@RequestParam Long saccoId) {
+        return ApiResponse.success(loanService.listRepaymentsBySacco(saccoId));
     }
 
     @GetMapping("/{id}")

@@ -35,7 +35,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/coopdb
       SPRING_DATASOURCE_USERNAME: coop
       SPRING_DATASOURCE_PASSWORD: coop
-      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       JWT_SECRET: ${JWT_SECRET:-super-secure-production-secret-key-256-bits}
       JWT_EXPIRATION: 86400000
       JWT_REFRESH_EXPIRATION: 86400000

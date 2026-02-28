@@ -40,4 +40,8 @@ public class Institution extends BaseEntity {
 
     @Column(name = "applicant_phone")
     private String applicantPhone;
+
+    /** Default annual loan interest rate (%). SACCOs/Unions set this; members see it when applying. */
+    @Column(name = "default_loan_interest_rate", precision = 19, scale = 4)
+    private java.math.BigDecimal defaultLoanInterestRate;
 }

@@ -16,4 +16,7 @@ public class LoanRepaymentRequest {
     private BigDecimal amountPaid;
 
     private LocalDate paymentDate; // default today
+
+    /** Optional: which installment (1-based month) this payment is for. If set, payment applies only to that installment. */
+    private Integer installmentNumber;
 }
