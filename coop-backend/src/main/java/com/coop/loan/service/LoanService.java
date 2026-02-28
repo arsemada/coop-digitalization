@@ -215,6 +215,11 @@ public class LoanService {
 
     private LoanRepaymentResponse toRepaymentResponse(LoanRepayment r) {
         Loan loan = r.getLoan();
+        String recordedByType = null;
+        if (r.getRecordedBy() != null) {
+            var role = r.getRecordedBy().getRole();
+            recordedByType = (role == com.coop.user.entity.Role.MEMBER) ? "Member" : "SACCO";
+        }
         return LoanRepaymentResponse.builder()
                 .id(r.getId())
                 .loanId(loan.getId())
@@ -225,6 +230,7 @@ public class LoanService {
                 .interestComponent(r.getInterestComponent())
                 .paymentDate(r.getPaymentDate())
                 .recordedBy(r.getRecordedBy() != null ? r.getRecordedBy().getUsername() : null)
+                .recordedByType(recordedByType)
                 .createdAt(r.getCreatedAt())
                 .build();
     }

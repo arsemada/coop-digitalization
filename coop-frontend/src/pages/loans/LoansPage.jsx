@@ -389,9 +389,10 @@ export default function LoansPage() {
           <table className="min-w-full">
             <thead>
               <tr className="border-b border-champagne/20 bg-forest text-offwhite">
-                <th className="px-6 py-4 text-left text-sm font-semibold">Date</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">Payment Date</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">Recorded At</th>
                 <th className="px-6 py-4 text-left text-sm font-semibold">Loan #</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-forest">Member</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold">Member</th>
                 <th className="px-6 py-4 text-right text-sm font-semibold">Amount</th>
                 <th className="px-6 py-4 text-right text-sm font-semibold">Principal</th>
                 <th className="px-6 py-4 text-right text-sm font-semibold">Interest</th>
@@ -399,17 +400,29 @@ export default function LoansPage() {
               </tr>
             </thead>
             <tbody>
-              {repayments.map((r) => (
-                <tr key={r.id} className="border-b border-champagne/10 hover:bg-offwhite/50">
-                  <td className="px-6 py-4 text-polished">{r.paymentDate}</td>
-                  <td className="px-6 py-4 font-medium">{r.loanId}</td>
-                  <td className="px-6 py-4">{r.memberName} ({r.memberNumber})</td>
-                  <td className="px-6 py-4 text-right">{r.amountPaid}</td>
-                  <td className="px-6 py-4 text-right">{r.principalComponent ?? '—'}</td>
-                  <td className="px-6 py-4 text-right">{r.interestComponent ?? '—'}</td>
-                  <td className="px-6 py-4 text-polished/80">{r.recordedBy || '—'}</td>
-                </tr>
-              ))}
+              {repayments.map((r) => {
+                const recordedAt = r.createdAt ? new Date(r.createdAt).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' }) : '—';
+                return (
+                  <tr key={r.id} className="border-b border-champagne/10 hover:bg-offwhite/50">
+                    <td className="px-6 py-4 text-polished">{r.paymentDate}</td>
+                    <td className="px-6 py-4 text-polished text-sm">{recordedAt}</td>
+                    <td className="px-6 py-4 font-medium">{r.loanId}</td>
+                    <td className="px-6 py-4">{r.memberName} ({r.memberNumber})</td>
+                    <td className="px-6 py-4 text-right">{r.amountPaid}</td>
+                    <td className="px-6 py-4 text-right">{r.principalComponent ?? '—'}</td>
+                    <td className="px-6 py-4 text-right">{r.interestComponent ?? '—'}</td>
+                    <td className="px-6 py-4">
+                      {r.recordedByType && (
+                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${r.recordedByType === 'SACCO' ? 'bg-forest/15 text-forest' : 'bg-champagne/30 text-bronze'}`}>
+                          {r.recordedByType}
+                        </span>
+                      )}
+                      {r.recordedBy && <span className="ml-1 text-polished/80 text-sm">{r.recordedBy}</span>}
+                      {!r.recordedBy && !r.recordedByType && '—'}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

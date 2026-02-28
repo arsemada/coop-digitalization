@@ -20,5 +20,7 @@ public class LoanRepaymentResponse {
     private BigDecimal interestComponent;
     private LocalDate paymentDate;
     private String recordedBy;
+    /** Who recorded: "SACCO" (staff) or "Member" */
+    private String recordedByType;
     private Instant createdAt;
 }
