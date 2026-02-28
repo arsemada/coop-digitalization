@@ -16,6 +16,8 @@ import java.time.LocalDate;
 public class SavingsAccountResponse {
 
     private Long id;
+    /** Visible account number for this category (e.g. SAV-000001). One per category per member. */
+    private String accountNumber;
     private Long memberId;
     private String memberName;
     private String memberNumber;
