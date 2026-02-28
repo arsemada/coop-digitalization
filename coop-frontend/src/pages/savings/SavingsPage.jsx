@@ -7,32 +7,20 @@ export default function SavingsPage() {
   const saccoId = user?.institutionId;
   const canManage = (user?.role === 'SACCO_ADMIN' || user?.role === 'SACCO_EMPLOYEE') && saccoId;
 
-  const [products, setProducts] = useState([]);
   const [members, setMembers] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [selectedMemberId, setSelectedMemberId] = useState('');
-  const [selectedAccountId, setSelectedAccountId] = useState('');
+  const [selectedAccountId, setSelectedAccountId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
-  const [showOpenAccount, setShowOpenAccount] = useState(false);
-  const [openAccountForm, setOpenAccountForm] = useState({ memberId: '', savingsProductId: '' });
-
   const [showTransaction, setShowTransaction] = useState(false);
   const [txnForm, setTxnForm] = useState({
     memberSavingsAccountId: '',
     type: 'DEPOSIT',
     amount: '',
   });
-
-  const fetchProducts = () => {
-    if (!saccoId) return;
-    api.get('/savings/products', { params: { saccoId } })
-      .then(({ data }) => data?.success && data?.data && setProducts(data.data))
-      .catch(() => {});
-  };
 
   const fetchMembers = () => {
     if (!saccoId) return;
@@ -63,12 +51,10 @@ export default function SavingsPage() {
 
   useEffect(() => {
     setLoading(true);
-    fetchProducts();
     fetchMembers();
     setLoading(false);
   }, [saccoId]);
 
-  // When logged in as MEMBER, auto-select their own record from members list (username = member number)
   const isMember = user?.role === 'MEMBER';
   useEffect(() => {
     if (isMember && members.length > 0 && user?.username && !selectedMemberId) {
@@ -78,7 +64,7 @@ export default function SavingsPage() {
   }, [isMember, members, user?.username, selectedMemberId]);
 
   useEffect(() => {
-    setSelectedAccountId('');
+    setSelectedAccountId(null);
     setTransactions([]);
     fetchAccountsByMember(selectedMemberId || null);
   }, [selectedMemberId]);
@@ -86,25 +72,6 @@ export default function SavingsPage() {
   useEffect(() => {
     fetchTransactions(selectedAccountId || null);
   }, [selectedAccountId]);
-
-  const handleOpenAccount = (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-    api.post('/savings/accounts', {
-      memberId: Number(openAccountForm.memberId),
-      savingsProductId: Number(openAccountForm.savingsProductId),
-    })
-      .then(({ data }) => {
-        if (data?.success) {
-          setSuccess('Savings account opened.');
-          setOpenAccountForm({ memberId: selectedMemberId || '', savingsProductId: '' });
-          setShowOpenAccount(false);
-          fetchAccountsByMember(selectedMemberId);
-        }
-      })
-      .catch((err) => setError(err.response?.data?.message || 'Failed to open account'));
-  };
 
   const handleRecordTransaction = (e) => {
     e.preventDefault();
@@ -128,7 +95,7 @@ export default function SavingsPage() {
           setShowTransaction(false);
           fetchAccountsByMember(selectedMemberId);
           fetchTransactions(accountId);
-          setSelectedAccountId(String(accountId));
+          setSelectedAccountId(accountId);
         }
       })
       .catch((err) => setError(err.response?.data?.message || 'Transaction failed'));
@@ -136,168 +103,212 @@ export default function SavingsPage() {
 
   if (!saccoId && user?.role !== 'SUPER_ADMIN') {
     return (
-      <div>
-        <h1 className="text-3xl font-bold text-forest">Savings</h1>
-        <p className="mt-2 text-polished/80">Savings products, member accounts, and transactions. You are not linked to a SACCO.</p>
+      <div className="rounded-2xl border border-champagne/30 bg-white p-8 shadow-lg text-center">
+        <div className="text-5xl mb-4 opacity-60">🏦</div>
+        <h1 className="text-2xl font-bold text-forest">Savings</h1>
+        <p className="mt-2 text-polished/80">You are not linked to a SACCO. Contact your administrator.</p>
       </div>
     );
   }
 
   if (!saccoId && user?.role === 'SUPER_ADMIN') {
     return (
-      <div>
-        <h1 className="text-3xl font-bold text-forest">Savings</h1>
+      <div className="rounded-2xl border border-champagne/30 bg-white p-8 shadow-lg text-center">
+        <div className="text-5xl mb-4 opacity-60">🏦</div>
+        <h1 className="text-2xl font-bold text-forest">Savings</h1>
         <p className="mt-2 text-polished/80">Select a SACCO from Institutions to manage savings.</p>
       </div>
     );
   }
 
+  const totalBalance = accounts.reduce((sum, a) => sum + Number(a.balance || 0), 0);
+
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-forest">Savings</h1>
-      <p className="mt-2 text-polished/80">Savings products, member accounts, and transactions.</p>
-
-      {error && <p className="mt-4 text-red-600">{error}</p>}
-      {success && <p className="mt-4 text-emerald-600">{success}</p>}
-
-      {/* ——— Member accounts & transactions (products exist per category from member registration) ——— */}
-      <section className="mt-8">
-        <h2 className="text-xl font-bold text-forest">{isMember ? 'Your savings accounts' : 'Member savings accounts'}</h2>
-        <p className="mt-1 text-sm text-polished/80">
-          {isMember
-            ? 'Your accounts (one per category chosen at signup). View balance and recent transactions.'
-            : 'Select a member to see their accounts. Record deposits or withdrawals. Use “Open new account” only to add another category for that member.'}
-        </p>
-        {!isMember && (
-        <div className="mt-4 flex flex-wrap items-center gap-4">
+    <div className="space-y-8">
+      {/* Page header */}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-3">
+          <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-forest/10 text-2xl">💰</span>
           <div>
-            <label className="block text-sm font-medium text-polished mb-1">Member</label>
-            <select
-              value={selectedMemberId}
-              onChange={(e) => setSelectedMemberId(e.target.value)}
-              className="rounded-lg border border-bronze/30 px-3 py-2 min-w-[200px]"
-            >
-              <option value="">— Select member —</option>
-              {members.map((m) => (
-                <option key={m.id} value={m.id}>{m.memberNumber} – {m.fullName}</option>
-              ))}
-            </select>
+            <h1 className="text-2xl font-bold tracking-tight text-forest md:text-3xl">
+              {isMember ? 'My Savings' : 'Savings'}
+            </h1>
+            <p className="text-sm text-polished/80 mt-0.5">
+              {isMember
+                ? 'View your accounts and balances'
+                : 'View member accounts and record deposits or withdrawals'}
+            </p>
           </div>
-          {canManage && selectedMemberId && (
-            <button
-              type="button"
-              onClick={() => {
-                setOpenAccountForm({ memberId: selectedMemberId, savingsProductId: '' });
-                setShowOpenAccount(true);
-              }}
-              className="mt-6 rounded-lg bg-forest px-4 py-2 font-semibold text-offwhite hover:bg-emerald"
-            >
-              Open new account
-            </button>
-          )}
         </div>
+        {error && (
+          <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
         )}
+        {success && (
+          <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-800">
+            {success}
+          </div>
+        )}
+      </div>
 
-        {showOpenAccount && canManage && (
-          <form onSubmit={handleOpenAccount} className="mt-4 rounded-xl border border-champagne/20 bg-white p-6 shadow-md">
-            <h3 className="font-bold text-forest mb-4">Open savings account</h3>
-            <div className="flex flex-wrap gap-4">
-              <div>
-                <label className="block text-sm font-medium text-polished mb-1">Product *</label>
-                <select
-                  value={openAccountForm.savingsProductId}
-                  onChange={(e) => setOpenAccountForm((f) => ({ ...f, savingsProductId: e.target.value }))}
-                  className="rounded-lg border border-bronze/30 px-3 py-2 min-w-[200px]"
-                  required
-                >
-                  <option value="">— Select product —</option>
-                  {products.map((p) => (
-                    <option key={p.id} value={p.id}>{p.name} ({p.category})</option>
-                  ))}
-                </select>
-              </div>
-              <button type="submit" className="mt-6 rounded-lg bg-forest px-4 py-2 font-semibold text-offwhite hover:bg-emerald">Open account</button>
-              <button type="button" onClick={() => setShowOpenAccount(false)} className="mt-6 rounded-lg border border-bronze/30 px-4 py-2 text-polished">Cancel</button>
+      {/* Member selector (admin only) */}
+      {!isMember && (
+        <div className="rounded-2xl border border-champagne/20 bg-white p-5 shadow-sm">
+          <label className="block text-sm font-semibold text-forest mb-2">Select member</label>
+          <select
+            value={selectedMemberId}
+            onChange={(e) => setSelectedMemberId(e.target.value)}
+            className="w-full max-w-md rounded-xl border border-champagne/30 bg-offwhite/50 px-4 py-3 text-polished focus:border-forest focus:ring-2 focus:ring-forest/20 focus:outline-none transition"
+          >
+            <option value="">— Choose a member —</option>
+            {members.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.memberNumber} — {m.fullName}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {/* Main content: accounts + transactions */}
+      <div className="grid gap-6 lg:grid-cols-5">
+        {/* Accounts */}
+        <div className="lg:col-span-3">
+          <div className="rounded-2xl border border-champagne/20 bg-white shadow-sm overflow-hidden">
+            <div className="border-b border-champagne/20 bg-forest/5 px-5 py-4">
+              <h2 className="text-lg font-semibold text-forest">
+                {isMember ? 'Your accounts' : 'Accounts'}
+              </h2>
+              <p className="text-xs text-polished/70 mt-0.5">
+                {isMember
+                  ? 'One account per category you chose at registration'
+                  : 'Accounts are created when the member is registered'}
+              </p>
             </div>
-          </form>
-        )}
-
-        <div className="mt-6 grid gap-6 md:grid-cols-2">
-          <div className="rounded-xl border border-champagne/20 bg-white shadow-md overflow-hidden">
-            <h3 className="px-6 py-4 border-b border-champagne/20 font-semibold text-forest">Accounts</h3>
-            {!selectedMemberId ? (
-              <p className="px-6 py-8 text-polished/70">Select a member above.</p>
-            ) : accounts.length === 0 ? (
-              <p className="px-6 py-8 text-polished/70">No savings accounts. Open one for this member.</p>
-            ) : (
-              <ul className="divide-y divide-champagne/10">
-                {accounts.map((a) => (
-                  <li
-                    key={a.id}
-                    className={`px-6 py-4 flex justify-between items-center ${selectedAccountId === String(a.id) ? 'bg-forest/5' : ''}`}
-                  >
-                    <div>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedAccountId(String(a.id))}
-                        className="text-left font-medium text-forest hover:underline"
+            <div className="p-4">
+              {loading && !selectedMemberId ? (
+                <p className="py-12 text-center text-polished/60">Loading…</p>
+              ) : !selectedMemberId ? (
+                <div className="py-16 text-center">
+                  <span className="text-4xl opacity-40">📋</span>
+                  <p className="mt-3 text-polished/70">Select a member to see their accounts</p>
+                </div>
+              ) : accounts.length === 0 ? (
+                <div className="py-16 text-center">
+                  <span className="text-4xl opacity-40">📭</span>
+                  <p className="mt-3 text-polished/70">No savings accounts for this member yet</p>
+                  <p className="text-sm text-polished/60 mt-1">Accounts are created when the member is registered with savings categories</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {accounts.map((a) => {
+                    const isSelected = selectedAccountId === a.id;
+                    const accNo = a.accountNumber || `SAV-${String(a.id).padStart(6, '0')}`;
+                    const balance = Number(a.balance || 0);
+                    return (
+                      <div
+                        key={a.id}
+                        onClick={() => setSelectedAccountId(a.id)}
+                        className={`rounded-xl border-2 p-4 cursor-pointer transition-all ${
+                          isSelected
+                            ? 'border-forest bg-forest/5 shadow-md'
+                            : 'border-champagne/20 bg-offwhite/30 hover:border-forest/40 hover:bg-forest/[0.03]'
+                        }`}
                       >
-                        {a.productName} ({a.productCategory})
-                      </button>
-                      <p className="text-sm font-mono text-polished/90 mt-0.5">
-                        Account # {a.accountNumber || `SAV-${String(a.id).padStart(6, '0')}`}
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <p className="font-semibold text-forest">{a.productName}</p>
+                            <p className="text-xs font-mono text-polished/80 mt-1">#{accNo}</p>
+                            <p className="mt-2 text-lg font-bold text-forest">
+                              {balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            </p>
+                          </div>
+                          {canManage && (
+                            <button
+                              type="button"
+                              onClick={(ev) => {
+                                ev.stopPropagation();
+                                setTxnForm({ memberSavingsAccountId: a.id, type: 'DEPOSIT', amount: '' });
+                                setShowTransaction(true);
+                              }}
+                              className="rounded-lg bg-forest px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald focus:outline-none focus:ring-2 focus:ring-forest focus:ring-offset-2"
+                            >
+                              Deposit / Withdraw
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {accounts.length > 0 && (
+                    <div className="rounded-xl border border-champagne/20 bg-forest/5 px-4 py-3 mt-2">
+                      <p className="text-sm text-polished/70">Total across accounts</p>
+                      <p className="text-xl font-bold text-forest">
+                        {totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                       </p>
-                      <p className="text-sm text-polished/80">Balance: {Number(a.balance).toLocaleString()}</p>
                     </div>
-                    {canManage && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setTxnForm({ memberSavingsAccountId: a.id, type: 'DEPOSIT', amount: '' });
-                          setShowTransaction(true);
-                        }}
-                        className="rounded bg-forest/90 px-3 py-1.5 text-sm text-offwhite hover:bg-emerald"
-                      >
-                        Deposit / Withdraw
-                      </button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <div className="rounded-xl border border-champagne/20 bg-white shadow-md overflow-hidden">
-            <h3 className="px-6 py-4 border-b border-champagne/20 font-semibold text-forest">Recent transactions</h3>
-            {!selectedAccountId ? (
-              <p className="px-6 py-8 text-polished/70">Select an account to see transactions.</p>
-            ) : transactions.length === 0 ? (
-              <p className="px-6 py-8 text-polished/70">No transactions yet.</p>
-            ) : (
-              <ul className="divide-y divide-champagne/10">
-                {transactions.map((t) => (
-                  <li key={t.id} className="px-6 py-3 flex justify-between text-sm">
-                    <span className={t.type === 'DEPOSIT' ? 'text-emerald-700' : 'text-amber-700'}>
-                      {t.type} {Number(t.amount).toLocaleString()}
-                    </span>
-                    <span className="text-polished/80">{t.transactionDate}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {showTransaction && canManage && (
-          <form onSubmit={handleRecordTransaction} className="mt-6 rounded-xl border border-champagne/20 bg-white p-6 shadow-md max-w-md">
-            <h3 className="font-bold text-forest mb-4">Record transaction</h3>
-            <div className="space-y-4">
+        {/* Recent transactions */}
+        <div className="lg:col-span-2">
+          <div className="rounded-2xl border border-champagne/20 bg-white shadow-sm overflow-hidden sticky top-4">
+            <div className="border-b border-champagne/20 bg-forest/5 px-5 py-4">
+              <h2 className="text-lg font-semibold text-forest">Recent transactions</h2>
+              <p className="text-xs text-polished/70 mt-0.5">Select an account to see history</p>
+            </div>
+            <div className="p-4 max-h-[420px] overflow-y-auto">
+              {!selectedAccountId ? (
+                <div className="py-12 text-center">
+                  <span className="text-3xl opacity-40">📄</span>
+                  <p className="mt-2 text-sm text-polished/60">Select an account</p>
+                </div>
+              ) : transactions.length === 0 ? (
+                <div className="py-12 text-center">
+                  <span className="text-3xl opacity-40">📄</span>
+                  <p className="mt-2 text-sm text-polished/60">No transactions yet</p>
+                </div>
+              ) : (
+                <ul className="space-y-2">
+                  {transactions.map((t) => (
+                    <li
+                      key={t.id}
+                      className="flex items-center justify-between rounded-lg border border-champagne/20 bg-offwhite/30 px-3 py-2.5"
+                    >
+                      <span
+                        className={`text-sm font-medium ${
+                          t.type === 'DEPOSIT' ? 'text-emerald-700' : 'text-amber-700'
+                        }`}
+                      >
+                        {t.type === 'DEPOSIT' ? '+' : '−'} {Number(t.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </span>
+                      <span className="text-xs text-polished/70">{t.transactionDate}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Record transaction modal-style form */}
+      {showTransaction && canManage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-polished/40 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl border border-champagne/30 bg-white p-6 shadow-xl">
+            <h3 className="text-lg font-bold text-forest mb-4">Record transaction</h3>
+            <form onSubmit={handleRecordTransaction} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-polished mb-1">Type</label>
                 <select
                   value={txnForm.type}
                   onChange={(e) => setTxnForm((f) => ({ ...f, type: e.target.value }))}
-                  className="w-full rounded-lg border border-bronze/30 px-3 py-2"
+                  className="w-full rounded-xl border border-champagne/30 px-4 py-2.5 focus:border-forest focus:ring-2 focus:ring-forest/20 focus:outline-none"
                 >
                   <option value="DEPOSIT">Deposit</option>
                   <option value="WITHDRAWAL">Withdrawal</option>
@@ -311,20 +322,30 @@ export default function SavingsPage() {
                   min="0.01"
                   value={txnForm.amount}
                   onChange={(e) => setTxnForm((f) => ({ ...f, amount: e.target.value }))}
-                  className="w-full rounded-lg border border-bronze/30 px-3 py-2"
+                  className="w-full rounded-xl border border-champagne/30 px-4 py-2.5 focus:border-forest focus:ring-2 focus:ring-forest/20 focus:outline-none"
+                  placeholder="0.00"
                   required
                 />
               </div>
-            </div>
-            <div className="mt-4 flex gap-2">
-              <button type="submit" className="rounded-lg bg-forest px-4 py-2 font-semibold text-offwhite hover:bg-emerald">
-                Submit
-              </button>
-              <button type="button" onClick={() => setShowTransaction(false)} className="rounded-lg border border-bronze/30 px-4 py-2 text-polished">Cancel</button>
-            </div>
-          </form>
-        )}
-      </section>
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="submit"
+                  className="flex-1 rounded-xl bg-forest py-2.5 font-semibold text-white hover:bg-emerald focus:outline-none focus:ring-2 focus:ring-forest focus:ring-offset-2"
+                >
+                  Submit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowTransaction(false)}
+                  className="rounded-xl border border-champagne/30 px-4 py-2.5 font-medium text-polished hover:bg-offwhite/80"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
