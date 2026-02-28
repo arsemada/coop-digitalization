@@ -2,8 +2,6 @@ package com.coop.savings.controller;
 
 import com.coop.common.response.ApiResponse;
 import com.coop.savings.dto.*;
-import com.coop.savings.entity.SavingsProduct;
-import com.coop.savings.entity.SavingsTransaction;
 import com.coop.savings.service.SavingsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +21,12 @@ public class SavingsController {
 
     @PostMapping("/products")
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<SavingsProduct> createProduct(@Valid @RequestBody CreateSavingsProductRequest request) {
+    public ApiResponse<SavingsProductResponse> createProduct(@Valid @RequestBody CreateSavingsProductRequest request) {
         return ApiResponse.success(savingsService.createProduct(request));
     }
 
     @GetMapping("/products")
-    public ApiResponse<List<SavingsProduct>> listProducts(@RequestParam Long saccoId) {
+    public ApiResponse<List<SavingsProductResponse>> listProducts(@RequestParam Long saccoId) {
         return ApiResponse.success(savingsService.listProductsBySacco(saccoId));
     }
 
@@ -45,12 +43,12 @@ public class SavingsController {
 
     @PostMapping("/transactions")
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<SavingsTransaction> recordTransaction(@Valid @RequestBody SavingsTransactionRequest request) {
+    public ApiResponse<SavingsTransactionResponse> recordTransaction(@Valid @RequestBody SavingsTransactionRequest request) {
         return ApiResponse.success(savingsService.recordTransaction(request));
     }
 
     @GetMapping("/accounts/{accountId}/transactions")
-    public ApiResponse<List<SavingsTransaction>> listTransactions(
+    public ApiResponse<List<SavingsTransactionResponse>> listTransactions(
             @PathVariable Long accountId,
             @RequestParam(defaultValue = "50") int limit) {
         return ApiResponse.success(savingsService.listTransactions(accountId, limit));
