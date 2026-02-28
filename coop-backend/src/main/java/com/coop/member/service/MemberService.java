@@ -113,6 +113,8 @@ public class MemberService {
                     account.setMember(member);
                     account.setSavingsProduct(product);
                     account.setOpenedDate(LocalDate.now());
+                    account = memberSavingsAccountRepository.save(account);
+                    account.setAccountNumber("SAV-" + String.format("%06d", account.getId()));
                     memberSavingsAccountRepository.save(account);
                 }
             }
