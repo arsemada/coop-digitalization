@@ -13,6 +13,7 @@ export default function MainLayout() {
     { to: '/dashboard', label: 'Dashboard' },
     { to: '/members', label: 'Members', roles: ['SACCO_ADMIN', 'SACCO_EMPLOYEE', 'MEMBER'] },
     { to: '/savings', label: 'Savings', roles: ['SACCO_ADMIN', 'SACCO_EMPLOYEE', 'MEMBER'] },
+    { to: '/transfer', label: 'Transfer', roles: ['SACCO_ADMIN', 'SACCO_EMPLOYEE', 'MEMBER'] },
     { to: '/loans', label: 'Loans', roles: ['SACCO_ADMIN', 'SACCO_EMPLOYEE', 'MEMBER'] },
     { to: '/accounting', label: 'Accounting', roles: ['SUPER_ADMIN', 'UNION_ADMIN', 'SACCO_ADMIN'] },
     { to: '/reports', label: 'Reports', roles: ['SUPER_ADMIN', 'UNION_ADMIN', 'SACCO_ADMIN'] },

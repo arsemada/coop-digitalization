@@ -6,6 +6,7 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const isSacco = user?.role === 'SACCO_ADMIN' || user?.role === 'SACCO_EMPLOYEE';
   const isUnion = user?.role === 'UNION_ADMIN';
+  const isMember = user?.role === 'MEMBER';
 
   return (
     <div>
@@ -23,7 +24,24 @@ export default function DashboardPage() {
           <div className="text-sm font-medium text-champagne">Quick Actions</div>
           <p className="mt-2 text-polished/80">Shortcuts to common tasks.</p>
           <div className="mt-4 flex flex-wrap gap-3">
+            {isMember && (
+              <button
+                type="button"
+                onClick={() => navigate('/transfer')}
+                className="rounded-lg bg-forest px-4 py-2 text-sm font-semibold text-offwhite hover:bg-emerald"
+              >
+                Transfer to another account
+              </button>
+            )}
             {isSacco && (
+              <>
+              <button
+                type="button"
+                onClick={() => navigate('/transfer')}
+                className="rounded-lg border border-forest px-4 py-2 text-sm font-semibold text-forest hover:bg-forest/5"
+              >
+                Transfer requests
+              </button>
               <button
                 type="button"
                 onClick={() => navigate('/members?create=1')}
@@ -31,6 +49,7 @@ export default function DashboardPage() {
               >
                 Create Member
               </button>
+              </>
             )}
             {isUnion && (
               <button

@@ -8,6 +8,7 @@ import com.coop.institution.repository.InstitutionRepository;
 import com.coop.member.repository.MemberRepository;
 import com.coop.savings.dto.CreateSavingsProductRequest;
 import com.coop.savings.dto.OpenSavingsAccountRequest;
+import com.coop.savings.dto.AccountLookupResponse;
 import com.coop.savings.dto.SavingsAccountResponse;
 import com.coop.savings.dto.SavingsProductResponse;
 import com.coop.savings.dto.SavingsTransactionRequest;
@@ -31,6 +32,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -212,5 +214,23 @@ public class SavingsService {
                 member.getSacco().getId(), liabilityName, liabilityCode, AccountType.LIABILITY, null);
         account.setLiabilityAccount(liabilityAccount);
         memberSavingsAccountRepository.save(account);
+    }
+
+    /** Look up account by number for transfer destination. Returns holder name etc. Only within current user's SACCO. */
+    public Optional<AccountLookupResponse> lookupAccountByNumber(String accountNumber) {
+        Long saccoId = SecurityUtils.getCurrentInstitutionId();
+        if (saccoId == null) return Optional.empty();
+        if (!SecurityUtils.canAccessInstitution(saccoId)) return Optional.empty();
+        String num = accountNumber != null ? accountNumber.trim().toUpperCase() : "";
+        if (num.isEmpty()) return Optional.empty();
+        return memberSavingsAccountRepository.findByAccountNumber(num)
+                .filter(acc -> acc.getMember().getSacco().getId().equals(saccoId))
+                .map(acc -> AccountLookupResponse.builder()
+                        .accountId(acc.getId())
+                        .accountNumber(acc.getAccountNumber() != null ? acc.getAccountNumber() : "SAV-" + String.format("%06d", acc.getId()))
+                        .memberName(acc.getMember().getFullName())
+                        .memberNumber(acc.getMember().getMemberNumber())
+                        .productName(acc.getSavingsProduct().getName())
+                        .build());
     }
 }
