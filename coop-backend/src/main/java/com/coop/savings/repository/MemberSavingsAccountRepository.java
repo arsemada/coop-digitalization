@@ -11,4 +11,6 @@ public interface MemberSavingsAccountRepository extends JpaRepository<MemberSavi
     List<MemberSavingsAccount> findByMemberId(Long memberId);
 
     Optional<MemberSavingsAccount> findByMemberIdAndSavingsProductId(Long memberId, Long savingsProductId);
+
+    Optional<MemberSavingsAccount> findByAccountNumber(String accountNumber);
 }

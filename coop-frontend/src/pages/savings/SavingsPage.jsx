@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../api/client';
 
@@ -68,10 +69,6 @@ export default function SavingsPage() {
     setTransactions([]);
     fetchAccountsByMember(selectedMemberId || null);
   }, [selectedMemberId]);
-
-  useEffect(() => {
-    fetchTransactions(selectedAccountId || null);
-  }, [selectedAccountId]);
 
   const handleRecordTransaction = (e) => {
     e.preventDefault();
@@ -294,6 +291,34 @@ export default function SavingsPage() {
               )}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Transfer CTA — full flow lives on Transfer page */}
+      <div className="rounded-2xl border border-champagne/20 bg-white shadow-sm overflow-hidden">
+        <div className="border-b border-champagne/20 bg-forest/5 px-5 py-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">↔</span>
+            <div>
+              <h2 className="text-lg font-semibold text-forest">Transfers</h2>
+              <p className="text-xs text-polished/70 mt-0.5">
+                {isMember
+                  ? 'Request a transfer to another member or view your transfer history'
+                  : 'Approve transfer requests and view history'}
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/transfer"
+            className="rounded-xl bg-forest px-4 py-2 text-sm font-semibold text-white hover:bg-emerald focus:outline-none focus:ring-2 focus:ring-forest focus:ring-offset-2"
+          >
+            {isMember ? 'Go to Transfer' : 'Manage transfers'}
+          </Link>
+        </div>
+        <div className="p-5">
+          <p className="text-sm text-polished/70">
+            Use the Transfer section in the navigation to request new transfers, see account holder names when entering an account number, and view full history (sent and received).
+          </p>
         </div>
       </div>
 

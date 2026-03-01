@@ -11,6 +11,7 @@ const LandingPage = lazy(() => import('../pages/LandingPage'));
 const DashboardPage = lazy(() => import('../pages/dashboard/DashboardPage'));
 const MembersPage = lazy(() => import('../pages/members/MembersPage'));
 const SavingsPage = lazy(() => import('../pages/savings/SavingsPage'));
+const TransferPage = lazy(() => import('../pages/transfer/TransferPage'));
 const LoansPage = lazy(() => import('../pages/loans/LoansPage'));
 const AccountingPage = lazy(() => import('../pages/accounting/AccountingPage'));
 const ReportsPage = lazy(() => import('../pages/reports/ReportsPage'));
@@ -72,6 +73,14 @@ function AppRoutes() {
           element: (
             <ProtectedRoute allowedRoles={ROLES.SACCO}>
               <LazyRoute><SavingsPage /></LazyRoute>
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: 'transfer',
+          element: (
+            <ProtectedRoute allowedRoles={ROLES.SACCO}>
+              <LazyRoute><TransferPage /></LazyRoute>
             </ProtectedRoute>
           ),
         },
