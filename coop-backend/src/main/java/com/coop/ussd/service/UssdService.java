@@ -39,8 +39,14 @@ public class UssdService {
         Optional<Member> memberOpt = findMemberByPhone(phoneNumber);
         String normalizedPhone = memberOpt.map(m -> m.getPhone() != null ? m.getPhone() : "").orElse(normalizePhoneForDisplay(phoneNumber));
 
+        int depth = state.getDepth();
         // Empty or no steps → Main menu (always show, even if member not found - they can still see options)
-        if (state.getDepth() == 0) {
+        if (depth == 0) {
+            return buildMainMenu(phoneNumber);
+        }
+        // Global "0" → go back to main menu from any level
+        String lastStep = state.getStep(depth - 1);
+        if ("0".equals(lastStep)) {
             return buildMainMenu(phoneNumber);
         }
 
@@ -63,13 +69,13 @@ public class UssdService {
         // Step 1: only main choice selected → ask for PIN
         if (state.getDepth() == 1) {
             if ("1".equals(choice)) {
-                return con("Enter your PIN:");
+                return con("Enter your PIN:\n0. Back to main menu");
             }
             if ("2".equals(choice)) {
-                return con("Enter your PIN:");
+                return con("Enter your PIN:\n0. Back to main menu");
             }
             if ("3".equals(choice)) {
-                return con("Enter your PIN:");
+                return con("Enter your PIN:\n0. Back to main menu");
             }
             return end("Invalid option.");
         }
@@ -96,7 +102,7 @@ public class UssdService {
         // Option 3: Apply Loan
         if ("3".equals(choice)) {
             if (state.getDepth() == 2) {
-                return con("Enter loan amount in ETB:");
+                return con("Enter loan amount in ETB:\n0. Back to main menu");
             }
             // Depth 3: amount entered
             String amountStr = state.getLoanAmountInput();
@@ -239,10 +245,15 @@ public class UssdService {
     private Optional<Member> findMemberByPhone(String phone) {
         if (phone == null || phone.isBlank()) return Optional.empty();
         String canonical = toCanonicalPhone(phone);
+        String zeroPrefix = toZeroPrefixPhone(canonical);
+        String plusCanonical = "+" + canonical;
+
+        // Try canonical (251...), then 0-prefix, then +251... for older records
         Optional<Member> m = memberRepository.findByPhone(canonical);
         if (m.isPresent()) return m;
-        String zeroPrefix = toZeroPrefixPhone(canonical);
-        return memberRepository.findByPhone(zeroPrefix);
+        m = memberRepository.findByPhone(zeroPrefix);
+        if (m.isPresent()) return m;
+        return memberRepository.findByPhone(plusCanonical);
     }
 
     /** Canonical form: 251918781174. Used for display when member not found. */
