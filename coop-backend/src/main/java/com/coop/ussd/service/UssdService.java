@@ -8,7 +8,10 @@ import com.coop.loan.repository.LoanRepository;
 import com.coop.member.entity.Member;
 import com.coop.member.repository.MemberRepository;
 import com.coop.savings.entity.MemberSavingsAccount;
+import com.coop.savings.entity.TransferRequest;
+import com.coop.savings.entity.TransferRequestStatus;
 import com.coop.savings.repository.MemberSavingsAccountRepository;
+import com.coop.savings.repository.TransferRequestRepository;
 import com.coop.ussd.session.UssdSessionState;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,6 +33,7 @@ public class UssdService {
     private final MemberSavingsAccountRepository memberSavingsAccountRepository;
     private final LoanPolicyRepository loanPolicyRepository;
     private final LoanRepository loanRepository;
+    private final TransferRequestRepository transferRequestRepository;
 
     /**
      * Process USSD request and return response text (CON or END).
@@ -55,8 +59,8 @@ public class UssdService {
             return end("Invalid option. Please try again.");
         }
 
-        // 4 = Exit
-        if ("4".equals(choice)) {
+        // 5 = Exit
+        if ("5".equals(choice)) {
             return end("Thank you for using " + getSaccoName(memberOpt) + ". Goodbye.");
         }
 
@@ -68,13 +72,7 @@ public class UssdService {
 
         // Step 1: only main choice selected → ask for PIN
         if (state.getDepth() == 1) {
-            if ("1".equals(choice)) {
-                return con("Enter your PIN:\n0. Back to main menu");
-            }
-            if ("2".equals(choice)) {
-                return con("Enter your PIN:\n0. Back to main menu");
-            }
-            if ("3".equals(choice)) {
+            if ("1".equals(choice) || "2".equals(choice) || "3".equals(choice) || "4".equals(choice)) {
                 return con("Enter your PIN:\n0. Back to main menu");
             }
             return end("Invalid option.");
@@ -109,6 +107,11 @@ public class UssdService {
             return handleApplyLoan(member, amountStr);
         }
 
+        // Option 4: Transfer (create transfer request)
+        if ("4".equals(choice)) {
+            return handleTransfer(member, state);
+        }
+
         return end("Invalid option.");
     }
 
@@ -120,7 +123,8 @@ public class UssdService {
                         "1. Savings Balance\n" +
                         "2. Loan Eligibility\n" +
                         "3. Apply Loan\n" +
-                        "4. Exit"
+                        "4. Transfer\n" +
+                        "5. Exit"
         );
     }
 
@@ -166,6 +170,110 @@ public class UssdService {
         }
         BigDecimal maxLoan = eligibleSavings.multiply(multiplier).setScale(2, java.math.RoundingMode.DOWN);
         return end("Maximum Loan Allowed: " + formatMoney(maxLoan) + " ETB");
+    }
+
+    /**
+     * Transfer flow (option 4):
+     * depth 2: 4*PIN                 → select source account
+     * depth 3: 4*PIN*idx             → enter destination account
+     * depth 4: 4*PIN*idx*dest        → enter amount
+     * depth 5: 4*PIN*idx*dest*amount → create transfer request (PENDING)
+     */
+    private String handleTransfer(Member member, UssdSessionState state) {
+        List<MemberSavingsAccount> accounts = memberSavingsAccountRepository.findByMemberId(member.getId()).stream()
+                .filter(a -> "ACTIVE".equals(a.getStatus()))
+                .toList();
+        if (accounts.isEmpty()) {
+            return end("No active savings accounts found.");
+        }
+
+        int depth = state.getDepth();
+        // Step 1 inside transfer: choose source account
+        if (depth == 2) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Select source account:\n");
+            for (int i = 0; i < accounts.size(); i++) {
+                MemberSavingsAccount acc = accounts.get(i);
+                String accNo = acc.getAccountNumber() != null ? acc.getAccountNumber() : "SAV-" + String.format("%06d", acc.getId());
+                BigDecimal balance = acc.getBalance() != null ? acc.getBalance() : BigDecimal.ZERO;
+                BigDecimal locked = acc.getLockedAmount() != null ? acc.getLockedAmount() : BigDecimal.ZERO;
+                BigDecimal available = balance.subtract(locked).max(BigDecimal.ZERO);
+                sb.append(i + 1)
+                        .append(". ")
+                        .append(acc.getSavingsProduct().getName())
+                        .append(" - ")
+                        .append(accNo)
+                        .append(" (Avail: ")
+                        .append(formatMoney(available))
+                        .append(")\n");
+            }
+            sb.append("0. Back to main menu");
+            return con(sb.toString());
+        }
+
+        // Need valid source account index
+        String srcIdxStr = state.getStep(2);
+        int idx;
+        try {
+            idx = Integer.parseInt(srcIdxStr) - 1;
+        } catch (Exception e) {
+            return end("Invalid account choice.");
+        }
+        if (idx < 0 || idx >= accounts.size()) {
+            return end("Invalid account choice.");
+        }
+        MemberSavingsAccount source = accounts.get(idx);
+
+        // Step 2 inside transfer: enter destination account number
+        if (depth == 3) {
+            return con("Enter destination account number:\n0. Back to main menu");
+        }
+
+        String destNumber = state.getStep(3);
+        if (destNumber == null || destNumber.trim().isEmpty()) {
+            return end("Destination account number is required.");
+        }
+        destNumber = destNumber.trim().toUpperCase();
+
+        // Step 3 inside transfer: enter amount
+        if (depth == 4) {
+            return con("Enter amount in ETB:\n0. Back to main menu");
+        }
+
+        String amountStr = state.getStep(4);
+        if (amountStr == null || amountStr.trim().isEmpty()) {
+            return end("Invalid amount. Please try again.");
+        }
+        BigDecimal amount;
+        try {
+            amount = new BigDecimal(amountStr.trim());
+        } catch (NumberFormatException e) {
+            return end("Invalid amount. Enter numbers only.");
+        }
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            return end("Amount must be positive.");
+        }
+
+        BigDecimal balance = source.getBalance() != null ? source.getBalance() : BigDecimal.ZERO;
+        BigDecimal locked = source.getLockedAmount() != null ? source.getLockedAmount() : BigDecimal.ZERO;
+        BigDecimal available = balance.subtract(locked).max(BigDecimal.ZERO);
+        if (available.compareTo(amount) < 0) {
+            return end("Insufficient available balance.");
+        }
+
+        String sourceNumber = source.getAccountNumber() != null ? source.getAccountNumber() : "SAV-" + String.format("%06d", source.getId());
+        if (destNumber.equalsIgnoreCase(sourceNumber)) {
+            return end("Cannot transfer to the same account.");
+        }
+
+        TransferRequest tr = new TransferRequest();
+        tr.setSourceAccount(source);
+        tr.setDestinationAccountNumber(destNumber);
+        tr.setAmount(amount);
+        tr.setStatus(TransferRequestStatus.PENDING);
+        transferRequestRepository.save(tr);
+
+        return end("Transfer request submitted. SACCO will approve and complete it.");
     }
 
     @Transactional
