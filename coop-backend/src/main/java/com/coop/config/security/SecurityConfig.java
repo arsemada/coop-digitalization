@@ -60,6 +60,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/institutions").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/institutions/apply").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/ussd").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()
                 )

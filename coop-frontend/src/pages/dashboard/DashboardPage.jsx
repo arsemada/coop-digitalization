@@ -49,6 +49,14 @@ export default function DashboardPage() {
               >
                 Create Member
               </button>
+              <a
+                href="/ussd-simulator.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-lg border border-champagne/40 px-4 py-2 text-sm font-semibold text-polished hover:bg-champagne/10"
+              >
+                USSD Simulator
+              </a>
               </>
             )}
             {isUnion && (

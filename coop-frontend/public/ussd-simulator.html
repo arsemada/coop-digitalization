@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>USSD Simulator</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #e8e8e8;
+    }
+    .wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #a0aec0;
+      margin: 0;
+    }
+    .phone {
+      width: 320px;
+      background: #0f0f1a;
+      border-radius: 2.5rem;
+      padding: 1.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+      border: 2px solid #2d2d44;
+    }
+    .screen {
+      background: #0d0d14;
+      border-radius: 1rem;
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid #2d2d44;
+    }
+    .display {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #cbd5e0;
+    }
+    .display .line {
+      margin-bottom: 0.5rem;
+    }
+    .display .sys {
+      color: #718096;
+      font-size: 11px;
+    }
+    .input-row {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      border-top: 1px solid #2d2d44;
+      background: #0f0f1a;
+    }
+    .input-row input[type="text"] {
+      flex: 1;
+      padding: 0.6rem 0.75rem;
+      border-radius: 0.5rem;
+      border: 1px solid #2d2d44;
+      background: #1a1a2e;
+      color: #e8e8e8;
+      font-size: 14px;
+    }
+    .input-row input[type="text"]::placeholder {
+      color: #4a5568;
+    }
+    .input-row input[type="text"]:focus {
+      outline: none;
+      border-color: #4299e1;
+      box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
+    }
+    .input-row button {
+      padding: 0.6rem 1rem;
+      border-radius: 0.5rem;
+      border: none;
+      background: #4299e1;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .input-row button:hover {
+      background: #3182ce;
+    }
+    .input-row button:disabled {
+      background: #4a5568;
+      cursor: not-allowed;
+    }
+    .config {
+      width: 320px;
+      padding: 0.75rem 1rem;
+      background: rgba(0,0,0,0.2);
+      border-radius: 0.75rem;
+      font-size: 12px;
+    }
+    .config label {
+      display: block;
+      color: #718096;
+      margin-bottom: 0.25rem;
+    }
+    .config input {
+      width: 100%;
+      padding: 0.4rem 0.5rem;
+      border-radius: 0.375rem;
+      border: 1px solid #2d2d44;
+      background: #1a1a2e;
+      color: #e8e8e8;
+      font-size: 13px;
+      margin-bottom: 0.5rem;
+    }
+    .config input:focus {
+      outline: none;
+      border-color: #4299e1;
+    }
+    .error {
+      color: #fc8181;
+      font-size: 12px;
+      margin-top: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <h1>USSD Simulator (Prototype)</h1>
+    <div class="config">
+      <label>API base (e.g. http://localhost:8080)</label>
+      <input type="text" id="apiBase" value="http://localhost:8080" placeholder="http://localhost:8080" />
+      <label>Phone number (0918… or +251918… both work)</label>
+      <input type="text" id="phoneNumber" value="" placeholder="e.g. 0918781174 or +251918781174" />
+      <p class="line sys" style="margin-top:0.5rem;color:#718096;">PIN: set in Dashboard → Members → &quot;Set USSD PIN&quot; (4 digits).</p>
+    </div>
+    <div class="phone">
+      <div class="screen">
+        <div class="display" id="display"></div>
+        <div class="input-row">
+          <input type="text" id="input" placeholder="Enter choice or PIN..." autocomplete="off" />
+          <button type="button" id="send">Send</button>
+        </div>
+      </div>
+    </div>
+    <div id="error" class="error"></div>
+  </div>
+  <script>
+    (function () {
+      const API_BASE_KEY = 'ussd_sim_api_base';
+      const display = document.getElementById('display');
+      const input = document.getElementById('input');
+      const sendBtn = document.getElementById('send');
+      const apiBaseInput = document.getElementById('apiBase');
+      const phoneInput = document.getElementById('phoneNumber');
+      const errorEl = document.getElementById('error');
+
+      let sessionId = 'sim-' + Date.now();
+      let currentText = '';
+
+      try {
+        const saved = localStorage.getItem(API_BASE_KEY);
+        if (saved) apiBaseInput.value = saved;
+      } catch (_) {}
+
+      apiBaseInput.addEventListener('change', function () {
+        try { localStorage.setItem(API_BASE_KEY, apiBaseInput.value); } catch (_) {}
+      });
+
+      function appendSys(msg) {
+        const line = document.createElement('div');
+        line.className = 'line sys';
+        line.textContent = msg;
+        display.appendChild(line);
+        display.scrollTop = display.scrollHeight;
+      }
+
+      function appendReply(raw) {
+        const line = document.createElement('div');
+        line.className = 'line';
+        const isEnd = raw.startsWith('END ');
+        const isCon = raw.startsWith('CON ');
+        const text = (isEnd ? raw.slice(4) : isCon ? raw.slice(4) : raw).trim();
+        line.textContent = text;
+        display.appendChild(line);
+        display.scrollTop = display.scrollHeight;
+        if (isEnd) {
+          currentText = '';
+          appendSys('Session ended. Next input starts fresh.');
+        }
+      }
+
+      function setError(msg) {
+        errorEl.textContent = msg || '';
+      }
+
+      function doRequest() {
+        const apiBase = (apiBaseInput.value || '').trim().replace(/\/$/, '');
+        const phone = (phoneInput.value || '').trim();
+        if (!apiBase) {
+          setError('Set API base URL');
+          return;
+        }
+        if (!phone) {
+          setError('Set phone number');
+          return;
+        }
+        const value = (input.value || '').trim();
+        const newText = value ? (currentText ? currentText + '*' + value : value) : currentText;
+        const url = apiBase + '/api/ussd';
+        const body = { sessionId, phoneNumber: phone, text: newText || '' };
+
+        setError('');
+        sendBtn.disabled = true;
+        appendSys('Sending: ' + (newText || '(empty)'));
+        fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        })
+          .then(function (res) {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.text();
+          })
+          .then(function (text) {
+            appendReply(text);
+            currentText = newText;
+            input.value = '';
+            input.focus();
+          })
+          .catch(function (err) {
+            setError(err.message || 'Request failed');
+            appendSys('Error: ' + (err.message || 'Request failed'));
+          })
+          .finally(function () {
+            sendBtn.disabled = false;
+          });
+      }
+
+      sendBtn.addEventListener('click', doRequest);
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          doRequest();
+        }
+      });
+
+      appendSys('Enter a choice (1–4) and click Send. Leave input empty and Send for main menu. PIN is set by admin in Members → Set USSD PIN.');
+    })();
+  </script>
+</body>
+</html>
