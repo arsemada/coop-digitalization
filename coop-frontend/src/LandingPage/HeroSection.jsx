@@ -83,7 +83,7 @@ export default function HeroSection({ onNavigate }) {
             </motion.div>
           </div>
 
-          {/* Right: Dashboard mockup */}
+          {/* Right: Hero Image */}
           <div className="md:col-span-6">
             <motion.div
               variants={item}
@@ -96,77 +96,10 @@ export default function HeroSection({ onNavigate }) {
                 aria-hidden
               />
 
-              <div className="relative overflow-hidden rounded-[2rem] bg-white shadow-2xl ring-1 ring-[#111111]/10">
-                {/* Header */}
-                <div className="flex items-center justify-between px-6 py-5 border-b border-[#111111]/10">
-                  <div className="flex items-center gap-3">
-                    <span className="h-2.5 w-2.5 rounded-full bg-[#0A7A54] shadow-[0_0_0_5px_rgba(10,122,84,0.12)]" />
-                    <div className="text-xs font-semibold uppercase tracking-[0.28em] text-[#004B33]">
-                      Dashboard
-                    </div>
-                  </div>
-                  <div className="text-xs font-medium text-[#111111]/55">Live</div>
-                </div>
-
-                {/* Body */}
-                <div className="p-6">
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="rounded-xl bg-[#F2F0ED] px-4 py-3 ring-1 ring-[#111111]/10">
-                      <div className="text-[11px] uppercase tracking-widest text-[#111111]/55">Members</div>
-                      <div className="mt-1 text-xl font-extrabold text-[#004B33]">1,247</div>
-                    </div>
-                    <div className="rounded-xl bg-[#F2F0ED] px-4 py-3 ring-1 ring-[#111111]/10">
-                      <div className="text-[11px] uppercase tracking-widest text-[#111111]/55">Savings</div>
-                      <div className="mt-1 text-xl font-extrabold text-[#004B33]">+12%</div>
-                    </div>
-                    <div className="rounded-xl bg-[#F2F0ED] px-4 py-3 ring-1 ring-[#111111]/10">
-                      <div className="text-[11px] uppercase tracking-widest text-[#111111]/55">Reports</div>
-                      <div className="mt-1 text-xl font-extrabold text-[#0A7A54]">Live</div>
-                    </div>
-                  </div>
-
-                  <div className="mt-5 rounded-2xl bg-[#F2F0ED] ring-1 ring-[#111111]/10 overflow-hidden">
-                    <div className="flex items-center justify-between px-4 py-3">
-                      <div className="text-xs font-semibold text-[#111111]/65">Analytics</div>
-                      <div className="text-[11px] font-medium text-[#111111]/50">30 days</div>
-                    </div>
-                    <div className="px-4 pb-4">
-                      <div className="relative h-20 rounded-xl bg-white ring-1 ring-[#111111]/10 overflow-hidden">
-                        <div
-                          className="absolute inset-0 opacity-[0.55] [background-image:linear-gradient(to_right,rgba(17,17,17,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(17,17,17,0.06)_1px,transparent_1px)] [background-size:28px_28px]"
-                          aria-hidden
-                        />
-                        <svg
-                          viewBox="0 0 300 100"
-                          className="absolute inset-0 h-full w-full"
-                          fill="none"
-                          aria-hidden
-                        >
-                          <path
-                            d="M10 74 C 55 66, 70 46, 110 52 C 150 58, 165 30, 205 38 C 245 46, 255 24, 290 28"
-                            stroke="rgba(0,75,51,0.85)"
-                            strokeWidth="3"
-                            strokeLinecap="round"
-                          />
-                          <path
-                            d="M10 74 C 55 66, 70 46, 110 52 C 150 58, 165 30, 205 38 C 245 46, 255 24, 290 28"
-                            stroke="rgba(197,163,132,0.35)"
-                            strokeWidth="8"
-                            strokeLinecap="round"
-                            opacity="0.35"
-                          />
-                        </svg>
-                        <motion.div
-                          className="absolute inset-y-0 -left-1/2 w-1/2 bg-gradient-to-r from-transparent via-white/50 to-transparent"
-                          animate={reduceMotion ? undefined : { x: ['0%', '220%'] }}
-                          transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut', delay: 0.4 }}
-                          aria-hidden
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <div 
+                className="relative overflow-hidden rounded-[2rem] bg-white shadow-2xl ring-1 ring-[#111111]/10 h-96 bg-cover bg-center bg-no-repeat"
+                style={{ backgroundImage: 'url("/hero.png")' }}
+              />
             </motion.div>
           </div>
         </motion.div>
