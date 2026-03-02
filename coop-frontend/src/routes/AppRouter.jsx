@@ -7,7 +7,7 @@ import AuthLayout from '../layouts/AuthLayout';
 
 const LoginPage = lazy(() => import('../pages/LoginPage'));
 const ChangePasswordPage = lazy(() => import('../pages/ChangePasswordPage'));
-const LandingPage = lazy(() => import('../pages/LandingPage'));
+const LandingPage = lazy(() => import('../LandingPage/LandingPage'));
 const DashboardPage = lazy(() => import('../pages/dashboard/DashboardPage'));
 const MembersPage = lazy(() => import('../pages/members/MembersPage'));
 const SavingsPage = lazy(() => import('../pages/savings/SavingsPage'));

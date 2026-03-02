@@ -2,12 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Coop Digitalization Brand Theme */
+/* Coop Digital — Agriculture + Finance */
 :root {
   --color-forest: #004B33;
+  --color-forest-deep: #003322;
   --color-emerald: #0A7A54;
   --color-champagne: #C5A384;
+  --color-gold: #B8860B;
+  --color-gold-soft: #D4A84B;
   --color-bronze: #8E6D52;
-  --color-black: #111111;
+  --color-polished: #111111;
   --color-offwhite: #F2F0ED;
+  --color-earth: #E8E0D5;
+  --font-display: 'Inter', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+/* Smooth scroll for anchor links */
+html {
+  scroll-behavior: smooth;
 }
