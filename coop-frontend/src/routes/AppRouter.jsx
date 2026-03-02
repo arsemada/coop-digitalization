@@ -11,10 +11,12 @@ const LandingPage = lazy(() => import('../LandingPage/LandingPage'));
 const DashboardPage = lazy(() => import('../pages/dashboard/DashboardPage'));
 const MembersPage = lazy(() => import('../pages/members/MembersPage'));
 const SavingsPage = lazy(() => import('../pages/savings/SavingsPage'));
+const TransferPage = lazy(() => import('../pages/transfer/TransferPage'));
 const LoansPage = lazy(() => import('../pages/loans/LoansPage'));
 const AccountingPage = lazy(() => import('../pages/accounting/AccountingPage'));
 const ReportsPage = lazy(() => import('../pages/reports/ReportsPage'));
 const InstitutionsPage = lazy(() => import('../pages/institutions/InstitutionsPage'));
+const SettingsPage = lazy(() => import('../pages/settings/SettingsPage'));
 const ApplyInstitutionPage = lazy(() => import('../pages/ApplyInstitutionPage'));
 
 const ROLES = {
@@ -61,7 +63,7 @@ function AppRoutes() {
         {
           path: 'members',
           element: (
-            <ProtectedRoute allowedRoles={ROLES.SACCO}>
+            <ProtectedRoute allowedRoles={['SACCO_ADMIN', 'SACCO_EMPLOYEE']}>
               <LazyRoute><MembersPage /></LazyRoute>
             </ProtectedRoute>
           ),
@@ -71,6 +73,14 @@ function AppRoutes() {
           element: (
             <ProtectedRoute allowedRoles={ROLES.SACCO}>
               <LazyRoute><SavingsPage /></LazyRoute>
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: 'transfer',
+          element: (
+            <ProtectedRoute allowedRoles={ROLES.SACCO}>
+              <LazyRoute><TransferPage /></LazyRoute>
             </ProtectedRoute>
           ),
         },
@@ -103,6 +113,14 @@ function AppRoutes() {
           element: (
             <ProtectedRoute allowedRoles={ROLES.UNION}>
               <LazyRoute><InstitutionsPage /></LazyRoute>
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: 'settings',
+          element: (
+            <ProtectedRoute allowedRoles={['SACCO_ADMIN', 'SACCO_EMPLOYEE', 'UNION_ADMIN']}>
+              <LazyRoute><SettingsPage /></LazyRoute>
             </ProtectedRoute>
           ),
         },

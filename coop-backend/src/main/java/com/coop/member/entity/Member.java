@@ -20,7 +20,15 @@ public class Member extends BaseEntity {
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
+    /** Phone number for USSD and contact. Used as USSD identifier. */
+    @Column(name = "phone", unique = true)
     private String phone;
+
+    private String email;
+
+    /** BCrypt-hashed 4-digit PIN for USSD. Nullable for members created before PIN support. */
+    @Column(name = "pin_hash", length = 60)
+    private String pinHash;
 
     @Column(name = "join_date")
     private LocalDate joinDate;

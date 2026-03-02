@@ -4,6 +4,7 @@ import com.coop.common.exception.CustomException;
 import com.coop.config.security.SecurityUtils;
 import com.coop.institution.dto.ApproveInstitutionResponse;
 import com.coop.institution.dto.CreateInstitutionRequest;
+import com.coop.institution.dto.UpdateInstitutionRequest;
 import com.coop.institution.dto.InstitutionResponse;
 import com.coop.institution.entity.InstitutionType;
 import com.coop.institution.service.InstitutionService;
@@ -41,6 +42,13 @@ public class InstitutionController {
         return ApiResponse.success(institutionService.create(request));
     }
 
+    /** Current user's institution (member's SACCO, or staff's institution). Must be before /{id}. */
+    @GetMapping("/me")
+    public ApiResponse<InstitutionResponse> getCurrentInstitution() {
+        InstitutionResponse inst = institutionService.getCurrentUserInstitution();
+        return inst != null ? ApiResponse.success(inst) : ApiResponse.error("No institution linked");
+    }
+
     @GetMapping("/{id}")
     public ApiResponse<InstitutionResponse> getById(@PathVariable Long id) {
         return ApiResponse.success(institutionService.getById(id));
@@ -59,5 +67,11 @@ public class InstitutionController {
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ApiResponse<ApproveInstitutionResponse> approve(@PathVariable Long id) {
         return ApiResponse.success(institutionService.approve(id));
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyRole('SACCO_ADMIN', 'SACCO_EMPLOYEE', 'UNION_ADMIN', 'SUPER_ADMIN')")
+    public ApiResponse<InstitutionResponse> update(@PathVariable Long id, @RequestBody UpdateInstitutionRequest request) {
+        return ApiResponse.success(institutionService.updateDefaultLoanInterestRate(id, request));
     }
 }

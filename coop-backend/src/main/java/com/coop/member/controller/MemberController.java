@@ -28,6 +28,12 @@ public class MemberController {
         return ApiResponse.success(memberService.create(request));
     }
 
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('MEMBER')")
+    public ApiResponse<MemberResponse> getCurrentMember() {
+        return ApiResponse.success(memberService.getCurrentMember());
+    }
+
     @GetMapping("/{id}")
     public ApiResponse<MemberResponse> getById(@PathVariable Long id) {
         return ApiResponse.success(memberService.getById(id));
@@ -36,5 +42,13 @@ public class MemberController {
     @GetMapping
     public ApiResponse<List<MemberResponse>> listBySacco(@RequestParam Long saccoId) {
         return ApiResponse.success(memberService.listBySacco(saccoId));
+    }
+
+    @PatchMapping("/{id}/ussd-pin")
+    @PreAuthorize("hasAnyRole('SACCO_ADMIN', 'SACCO_EMPLOYEE')")
+    public ApiResponse<Void> setUssdPin(@PathVariable Long id, @RequestBody java.util.Map<String, String> body) {
+        String pin = body != null ? body.get("pin") : null;
+        memberService.setUssdPin(id, pin);
+        return ApiResponse.success();
     }
 }

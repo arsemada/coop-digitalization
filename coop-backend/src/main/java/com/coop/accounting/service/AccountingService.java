@@ -24,6 +24,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AccountingService {
 
+    /** Standard code for the main Cash (Asset) account. */
+    public static final String CASH_ACCOUNT_CODE = "1000";
+
     private final JournalEntryRepository journalEntryRepository;
     private final JournalLineRepository journalLineRepository;
     private final AccountRepository accountRepository;
@@ -92,5 +95,14 @@ public class AccountingService {
 
     public List<Account> listAccounts(Long institutionId) {
         return accountRepository.findByInstitutionId(institutionId);
+    }
+
+    /**
+     * Returns the Cash (Asset) account for the institution, creating it if it does not exist.
+     */
+    @Transactional
+    public Account getOrCreateCashAccount(Long institutionId) {
+        return accountRepository.findByInstitutionIdAndCode(institutionId, CASH_ACCOUNT_CODE)
+                .orElseGet(() -> createAccount(institutionId, "Cash", CASH_ACCOUNT_CODE, AccountType.ASSET, null));
     }
 }

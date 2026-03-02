@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @Data
@@ -28,4 +29,5 @@ public class InstitutionResponse {
     private String applicantUsername;
     private String applicantEmail;
     private String applicantPhone;
+    private BigDecimal defaultLoanInterestRate;
 }

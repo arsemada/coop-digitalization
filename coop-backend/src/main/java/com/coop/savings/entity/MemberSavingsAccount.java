@@ -2,6 +2,7 @@ package com.coop.savings.entity;
 
 import com.coop.common.entity.BaseEntity;
 import com.coop.member.entity.Member;
+import com.coop.accounting.entity.Account;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,9 +27,22 @@ public class MemberSavingsAccount extends BaseEntity {
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal balance = BigDecimal.ZERO;
 
+    /** Amount locked (e.g. as loan collateral). Available = balance - lockedAmount. */
+    @Column(name = "locked_amount", nullable = false, precision = 19, scale = 2)
+    private BigDecimal lockedAmount = BigDecimal.ZERO;
+
     @Column(nullable = false)
     private String status = "ACTIVE";
 
+    /** Human-readable account number for this category (e.g. SAV-000001). Member sees one per category. */
+    @Column(name = "account_number", unique = true)
+    private String accountNumber;
+
     @Column(name = "opened_date", nullable = false)
     private LocalDate openedDate;
+
+    /** GL liability account for this member's savings in this product/category. One account per category. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "liability_account_id")
+    private Account liabilityAccount;
 }

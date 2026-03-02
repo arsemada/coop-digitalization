@@ -3,6 +3,7 @@ package com.coop.loan.entity;
 import com.coop.common.entity.BaseEntity;
 import com.coop.institution.entity.Institution;
 import com.coop.member.entity.Member;
+import com.coop.savings.entity.MemberSavingsAccount;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,6 +33,13 @@ public class Loan extends BaseEntity {
 
     @Column(name = "term_in_months", nullable = false)
     private int termInMonths;
+
+    @Column(name = "loan_reason", length = 1000)
+    private String loanReason;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "collateral_savings_account_id")
+    private MemberSavingsAccount collateralSavingsAccount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -18,6 +18,10 @@ public class CreateMemberRequest {
     private String fullName;
 
     private String phone;
+
+    @NotBlank(message = "Email is required for OTP delivery")
+    private String email;
+
     private LocalDate joinDate;
 
     /** SACCO ID. For SACCO staff, can be omitted—their institution is used. */

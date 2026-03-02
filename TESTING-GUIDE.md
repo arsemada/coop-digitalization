@@ -138,6 +138,49 @@ The application **creates a default SUPER_ADMIN automatically** on startup if on
 
 ---
 
+## Test Flow: Savings (Products, Accounts, Transactions)
+
+**Where:** Frontend **Savings** page at `/savings` (nav link “Savings”). Backend: `/api/savings/*`.
+
+### How it works
+When you **create a member** (Members page), you choose **Savings categories** (e.g. Regular, Voluntary). The backend automatically:
+- **Creates a savings product** per category for the SACCO (if it doesn’t exist yet), and
+- **Opens a savings account** for that member for each selected category.
+
+So you **do not** need to “Create product” or “Open account” first for the normal flow—just create a member with the desired categories, then go to Savings to record deposits/withdrawals.
+
+### Prerequisites
+- Log in as **SACCO_ADMIN** or **SACCO_EMPLOYEE** (user must have `institutionId` = a SACCO).
+- At least one **member** created with at least one **savings category** (Members → Create Member → choose categories).
+
+### Step 1: (Optional) Create a custom savings product
+Only needed if you want a product with a custom name or settings **before** any member has chosen that category. Otherwise skip this step.
+1. Go to **Savings** → **Create product** (optional).
+2. Enter name, category, optional interest rate, submit.
+3. **Expected:** Product appears in the table. Products are also auto-created when the first member is created with a given category.
+
+### Step 2: (Optional) Open an extra account for a member
+Only needed if you want to add another category/product to a member who was created with fewer categories. If the member was created with the right categories, they already have one account per category—skip to Step 3.
+1. In **Member savings accounts**, select a **Member**.
+2. Click **Open new account** and choose a **Product**, submit.
+3. **Expected:** New account appears under “Accounts” with balance 0.
+
+### Step 3: Test deposit (savings transaction)
+1. With a member selected, click an account in the list.
+2. Click **Deposit / Withdraw** for that account.
+3. Leave type **Deposit**, enter **Amount** (e.g. 1000), submit.
+4. **Expected:** Success message; balance updates; the transaction appears under “Recent transactions” as DEPOSIT. Backend posts: Debit Cash, Credit Member Savings Liability.
+
+### Step 4: Test withdrawal
+1. Same account, **Deposit / Withdraw** again.
+2. Select type **Withdrawal**, enter an amount ≤ current balance, submit.
+3. **Expected:** Success; balance decreases; transaction listed as WITHDRAWAL. Backend posts: Debit Member Savings Liability, Credit Cash.
+
+### Optional: Verify in Accounting
+- Go to **Accounting** and check journal entries: each savings deposit/withdrawal should appear as a balanced entry (reference type `SAVINGS_TRANSACTION`).
+
+---
+
 ## Test Flow 5: MEMBER
 
 ### 5.1 Setup
@@ -180,6 +223,12 @@ The application **creates a default SUPER_ADMIN automatically** on startup if on
 | `/api/institutions/{id}/approve` | POST | SUPER_ADMIN | Approve institution |
 | `/api/members` | POST | SACCO roles | Create member |
 | `/api/members` | GET | SACCO roles | List members |
+| `/api/savings/products` | GET | SACCO roles | List products (`?saccoId=`) |
+| `/api/savings/products` | POST | SACCO roles | Create product |
+| `/api/savings/accounts` | POST | SACCO roles | Open account (memberId, savingsProductId) |
+| `/api/savings/accounts/member/{memberId}` | GET | SACCO roles | List accounts by member |
+| `/api/savings/transactions` | POST | SACCO roles | Record deposit/withdrawal |
+| `/api/savings/accounts/{accountId}/transactions` | GET | SACCO roles | List transactions |
 
 ---
 

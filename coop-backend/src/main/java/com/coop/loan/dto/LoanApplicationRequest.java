@@ -8,10 +8,10 @@ import java.math.BigDecimal;
 @Data
 public class LoanApplicationRequest {
 
-    @NotNull(message = "Member is required")
+    /** Required for staff; optional for MEMBER (derived from current user) */
     private Long memberId;
 
-    @NotNull(message = "SACCO is required")
+    /** Required for staff; optional for MEMBER (derived from institution) */
     private Long saccoId;
 
     @NotNull(message = "Principal amount is required")
@@ -22,4 +22,11 @@ public class LoanApplicationRequest {
 
     @NotNull(message = "Term in months is required")
     private Integer termInMonths;
+
+    /** Collateral/security savings account - member selects from their savings accounts */
+    @NotNull(message = "Savings account is required")
+    private Long memberSavingsAccountId;
+
+    /** Reason for the loan */
+    private String loanReason;
 }
