@@ -83,7 +83,7 @@ public class MemberService {
         member.setMemberNumber(memberNumber);
         member.setFullName(request.getFullName());
         member.setEmail(email != null && !email.isBlank() ? email : null);
-        member.setPhone(request.getPhone());
+        member.setPhone(normalizePhoneForStorage(request.getPhone()));
         member.setJoinDate(request.getJoinDate() != null ? request.getJoinDate() : java.time.LocalDate.now());
         member.setSacco(sacco);
         member.setRegion(request.getRegion());
@@ -183,6 +183,30 @@ public class MemberService {
             throw new CustomException("Access denied to this institution", 403);
         }
         return memberRepository.findBySaccoId(saccoId).stream().map(this::toResponse).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void setUssdPin(Long memberId, String pin) {
+        if (pin == null || !pin.matches("\\d{4}")) {
+            throw new CustomException("PIN must be exactly 4 digits", HttpStatus.BAD_REQUEST.value());
+        }
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException("Member not found", HttpStatus.NOT_FOUND.value()));
+        if (!SecurityUtils.canAccessInstitution(member.getSacco().getId())) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN.value());
+        }
+        member.setPinHash(passwordEncoder.encode(pin));
+        memberRepository.save(member);
+    }
+
+    /** Store phone in canonical form (251...) so 0918 and +251918 match in USSD lookup. */
+    private static String normalizePhoneForStorage(String phone) {
+        if (phone == null || phone.isBlank()) return null;
+        String digits = phone.replaceAll("\\D", "");
+        if (digits.isEmpty()) return phone.trim();
+        if (digits.startsWith("251") && digits.length() >= 12) return digits;
+        if (digits.startsWith("0") && digits.length() > 1) return "251" + digits.substring(1);
+        return "251" + digits;
     }
 
     private MemberResponse toResponse(Member m) {

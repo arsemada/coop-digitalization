@@ -43,4 +43,12 @@ public class MemberController {
     public ApiResponse<List<MemberResponse>> listBySacco(@RequestParam Long saccoId) {
         return ApiResponse.success(memberService.listBySacco(saccoId));
     }
+
+    @PatchMapping("/{id}/ussd-pin")
+    @PreAuthorize("hasAnyRole('SACCO_ADMIN', 'SACCO_EMPLOYEE')")
+    public ApiResponse<Void> setUssdPin(@PathVariable Long id, @RequestBody java.util.Map<String, String> body) {
+        String pin = body != null ? body.get("pin") : null;
+        memberService.setUssdPin(id, pin);
+        return ApiResponse.success();
+    }
 }

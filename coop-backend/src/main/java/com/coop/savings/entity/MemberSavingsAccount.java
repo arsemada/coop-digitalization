@@ -27,6 +27,10 @@ public class MemberSavingsAccount extends BaseEntity {
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal balance = BigDecimal.ZERO;
 
+    /** Amount locked (e.g. as loan collateral). Available = balance - lockedAmount. */
+    @Column(name = "locked_amount", nullable = false, precision = 19, scale = 2)
+    private BigDecimal lockedAmount = BigDecimal.ZERO;
+
     @Column(nullable = false)
     private String status = "ACTIVE";
 

@@ -29,6 +29,9 @@ export default function MembersPage() {
   const [otpResult, setOtpResult] = useState(null);
   const [showCreate, setShowCreate] = useState(() => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('create') === '1');
   const [submitting, setSubmitting] = useState(false);
+  const [ussdPinMember, setUssdPinMember] = useState(null);
+  const [ussdPinValue, setUssdPinValue] = useState('');
+  const [ussdPinSubmitting, setUssdPinSubmitting] = useState(false);
   const [form, setForm] = useState({
     fullName: '',
     email: '',
@@ -79,6 +82,25 @@ export default function MembersPage() {
       })
       .catch((err) => setError(err.response?.data?.message || err.message || 'Create failed'))
       .finally(() => setSubmitting(false));
+  };
+
+  const handleSetUssdPin = (e) => {
+    e.preventDefault();
+    if (!ussdPinMember || !/^\d{4}$/.test(ussdPinValue)) {
+      setError('Enter exactly 4 digits for USSD PIN.');
+      return;
+    }
+    setUssdPinSubmitting(true);
+    setError('');
+    api.patch(`/members/${ussdPinMember.id}/ussd-pin`, { pin: ussdPinValue })
+      .then(({ data }) => {
+        if (data?.success) {
+          setUssdPinMember(null);
+          setUssdPinValue('');
+        }
+      })
+      .catch((err) => setError(err.response?.data?.message || 'Failed to set PIN'))
+      .finally(() => setUssdPinSubmitting(false));
   };
 
   if (!saccoId && user?.role !== 'SUPER_ADMIN') {
@@ -260,6 +282,7 @@ export default function MembersPage() {
                 <th className="px-6 py-4 text-left text-sm font-semibold text-forest">Join Date</th>
                 <th className="px-6 py-4 text-left text-sm font-semibold text-forest">Region</th>
                 <th className="px-6 py-4 text-left text-sm font-semibold text-forest">Status</th>
+                {canCreate && <th className="px-6 py-4 text-left text-sm font-semibold text-forest">Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -275,6 +298,17 @@ export default function MembersPage() {
                       {m.status || '—'}
                     </span>
                   </td>
+                  {canCreate && (
+                    <td className="px-6 py-4">
+                      <button
+                        type="button"
+                        onClick={() => { setUssdPinMember(m); setUssdPinValue(''); setError(''); }}
+                        className="rounded-lg border border-forest/40 px-3 py-1.5 text-xs font-medium text-forest hover:bg-forest/5"
+                      >
+                        Set USSD PIN
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -282,6 +316,49 @@ export default function MembersPage() {
           {members.length === 0 && (
             <p className="px-6 py-12 text-center text-polished/70">No members yet. Create one to get started.</p>
           )}
+        </div>
+      )}
+
+      {ussdPinMember && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-polished/40 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl border border-champagne/30 bg-white p-6 shadow-xl">
+            <h3 className="text-lg font-bold text-forest">Set USSD PIN</h3>
+            <p className="mt-1 text-sm text-polished/80">
+              For <strong>{ussdPinMember.fullName}</strong> (USSD / simulator). Member will use this 4-digit PIN when dialing USSD or using the simulator.
+            </p>
+            <form onSubmit={handleSetUssdPin} className="mt-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-polished mb-1">4-digit PIN</label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  pattern="[0-9]{4}"
+                  maxLength={4}
+                  value={ussdPinValue}
+                  onChange={(e) => setUssdPinValue(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  className="w-full rounded-xl border border-champagne/30 px-4 py-2.5 focus:border-forest focus:ring-2 focus:ring-forest/20 focus:outline-none"
+                  placeholder="e.g. 1234"
+                  autoFocus
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  disabled={ussdPinValue.length !== 4 || ussdPinSubmitting}
+                  className="flex-1 rounded-xl bg-forest py-2.5 font-semibold text-white hover:bg-emerald disabled:opacity-50"
+                >
+                  {ussdPinSubmitting ? 'Saving…' : 'Save PIN'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setUssdPinMember(null); setUssdPinValue(''); }}
+                  className="rounded-xl border border-champagne/30 px-4 py-2.5 font-medium text-polished hover:bg-offwhite/80"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

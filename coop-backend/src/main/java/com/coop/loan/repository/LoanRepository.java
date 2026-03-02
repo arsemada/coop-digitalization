@@ -13,4 +13,6 @@ public interface LoanRepository extends JpaRepository<Loan, Long> {
     List<Loan> findBySaccoId(Long saccoId);
 
     List<Loan> findBySaccoIdAndStatus(Long saccoId, LoanStatus status);
+
+    List<Loan> findByCollateralSavingsAccount_Id(Long collateralAccountId);
 }
