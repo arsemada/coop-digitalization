@@ -39,7 +39,7 @@ const translations = {
     },
     heroAudience: {
       label: '4 • Audience',
-      title: 'Built For',
+      title: 'Who We Serve',
       sacco: 'Primary SACCOs',
       unions: 'Cooperative Unions',
       members: 'Agricultural Members',

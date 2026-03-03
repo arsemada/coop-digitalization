@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 
-const SECTION_IDS = [null, 'features', 'how-it-works', 'mission', 'impact', 'faq', 'contact'];
+const SECTION_IDS = [null, 'features', 'how-it-works', 'impact', 'faq', 'contact'];
 
 export default function Footer({ activeSection, onNavigate }) {
   const { t } = useLanguage();
@@ -18,7 +18,6 @@ export default function Footer({ activeSection, onNavigate }) {
     null: t('nav.home'),
     features: t('nav.features'),
     'how-it-works': t('nav.howItWorks'),
-    mission: t('nav.mission'),
     impact: t('nav.impact'),
     faq: t('nav.faq'),
     contact: t('nav.contact'),

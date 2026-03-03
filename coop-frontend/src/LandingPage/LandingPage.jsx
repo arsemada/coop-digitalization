@@ -14,7 +14,6 @@ import Contact from './Contact';
 const SECTIONS = {
   features: Features,
   'how-it-works': HowItWorks,
-  mission: Mission,
   impact: ImpactSection,
   faq: FAQ,
   contact: Contact,
@@ -38,6 +37,7 @@ export default function LandingPage() {
           <>
             <HeroSection onNavigate={(section) => setActiveSection(section)} />
             <IntroContent />
+            <Mission />
           </>
         ) : SectionComponent ? (
           <main className="pt-24 pb-12 min-h-screen">

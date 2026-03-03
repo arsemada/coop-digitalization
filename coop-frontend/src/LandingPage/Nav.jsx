@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 
-const SECTION_IDS = ['features', 'how-it-works', 'mission', 'impact', 'faq', 'contact'];
+const SECTION_IDS = ['features', 'how-it-works', 'impact', 'faq', 'contact'];
 
 export default function Nav({ activeSection, onNavigate }) {
   const { lang, toggleLang, t } = useLanguage();
@@ -17,7 +17,6 @@ export default function Nav({ activeSection, onNavigate }) {
   const labels = {
     features: t('nav.features'),
     'how-it-works': t('nav.howItWorks'),
-    mission: t('nav.mission'),
     impact: t('nav.impact'),
     faq: t('nav.faq'),
     contact: t('nav.contact'),

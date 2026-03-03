@@ -132,7 +132,7 @@ export default function HeroSection({ onNavigate }) {
             whileInView="visible"
             viewport={{ once: true, margin: '-80px' }}
             variants={benefitsContainer}
-            className="space-y-6"
+            className="space-y-8"
           >
             <div>
               <p className="text-[#C5A384] font-semibold tracking-[0.18em] uppercase text-xs mb-3">
@@ -140,6 +140,8 @@ export default function HeroSection({ onNavigate }) {
               </p>
               <h2 className="text-3xl font-bold text-[#004B33]">{t('heroBenefits.title')}</h2>
             </div>
+
+            {/* Core benefits list */}
             <div className="relative grid gap-4 md:grid-cols-2">
               {[
                 { title: 'heroBenefits.financialTransparency', desc: 'heroBenefits.financialTransparencyDesc' },
@@ -160,6 +162,81 @@ export default function HeroSection({ onNavigate }) {
                 </motion.div>
               ))}
             </div>
+
+            {/* Why it matters – visual cards */}
+            <div className="grid gap-4 md:grid-cols-3">
+              <motion.div
+                variants={benefitItem}
+                className="rounded-2xl border border-[#C5A384]/25 bg-white/90 p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-10 w-10 rounded-xl bg-[#004B33]/10 text-[#004B33] flex items-center justify-center">
+                    <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden>
+                      <path
+                        d="M4 11h16M6 7h4m4 0h4M6 15h6"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-sm font-semibold text-[#004B33]">Clean cooperative books</p>
+                </div>
+                <p className="text-xs text-[#111111]/70">
+                  Boards and auditors see the same single source of truth, reducing disputes and late
+                  adjustments.
+                </p>
+              </motion.div>
+
+              <motion.div
+                variants={benefitItem}
+                className="rounded-2xl border border-[#C5A384]/25 bg-white/90 p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-10 w-10 rounded-xl bg-[#0A7A54]/10 text-[#0A7A54] flex items-center justify-center">
+                    <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden>
+                      <circle cx="12" cy="13" r="6" fill="none" stroke="currentColor" strokeWidth="1.6" />
+                      <path
+                        d="M12 13l3-2M9 4h6"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-sm font-semibold text-[#004B33]">Faster decisions</p>
+                </div>
+                <p className="text-xs text-[#111111]/70">
+                  Leaders access real‑time dashboards instead of waiting weeks for manual summaries.
+                </p>
+              </motion.div>
+
+              <motion.div
+                variants={benefitItem}
+                className="rounded-2xl border border-[#C5A384]/25 bg-white/90 p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-10 w-10 rounded-xl bg-[#C5A384]/15 text-[#8E6D52] flex items-center justify-center">
+                    <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden>
+                      <path
+                        d="M12 19s-5-3.2-7.2-5.4C3 12 2.7 9.5 4.1 8a3.6 3.6 0 0 1 5.1 0L12 10l2.8-2a3.6 3.6 0 0 1 5.1 0c1.4 1.5 1.1 4-0.7 5.6C17 15.8 12 19 12 19Z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-sm font-semibold text-[#004B33]">Member trust</p>
+                </div>
+                <p className="text-xs text-[#111111]/70">
+                  Members see accurate balances and loan schedules, strengthening confidence in the SACCO.
+                </p>
+              </motion.div>
+            </div>
           </motion.div>
 
           <motion.div
@@ -173,17 +250,52 @@ export default function HeroSection({ onNavigate }) {
               {t('heroAudience.label')}
             </p>
             <h2 className="text-3xl font-bold text-[#004B33] mb-6">{t('heroAudience.title')}</h2>
-            <div className="flex flex-wrap gap-3 mb-5">
-              <span className="inline-flex items-center rounded-full bg-[#004B33]/5 text-[#004B33] px-4 py-1.5 text-sm font-medium hover:bg-[#004B33]/10 hover:ring-2 hover:ring-[#C5A384]/40 transition-all cursor-default">
-                {t('heroAudience.sacco')}
-              </span>
-              <span className="inline-flex items-center rounded-full bg-[#004B33]/5 text-[#004B33] px-4 py-1.5 text-sm font-medium hover:bg-[#004B33]/10 hover:ring-2 hover:ring-[#C5A384]/40 transition-all cursor-default">
-                {t('heroAudience.unions')}
-              </span>
-              <span className="inline-flex items-center rounded-full bg-[#004B33]/5 text-[#004B33] px-4 py-1.5 text-sm font-medium hover:bg-[#004B33]/10 hover:ring-2 hover:ring-[#C5A384]/40 transition-all cursor-default">
-                {t('heroAudience.members')}
-              </span>
+
+            {/* Who we serve cards */}
+            <div className="grid gap-6 md:grid-cols-3 mb-4">
+              <div className="rounded-3xl border border-[#C5A384]/25 bg-white/95 px-5 py-7 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-12 w-12 rounded-2xl bg-[#004B33] text-[#F2F0ED] flex items-center justify-center text-base font-semibold">
+                    SA
+                  </div>
+                  <p className="text-base font-semibold text-[#004B33] truncate">
+                    {t('heroAudience.sacco')}
+                  </p>
+                </div>
+                <p className="text-sm text-[#111111]/75">
+                  Primary SACCOs running day‑to‑day savings, loans, and accounting for members.
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-[#C5A384]/25 bg-white/95 px-5 py-7 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-12 w-12 rounded-2xl bg-[#0A7A54] text-[#F2F0ED] flex items-center justify-center text-base font-semibold">
+                    CU
+                  </div>
+                  <p className="text-base font-semibold text-[#004B33] truncate">
+                    {t('heroAudience.unions')}
+                  </p>
+                </div>
+                <p className="text-sm text-[#111111]/75">
+                  Cooperative unions supervising multiple SACCOs with consolidated oversight and reports.
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-[#C5A384]/25 bg-white/95 px-5 py-7 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-12 w-12 rounded-2xl bg-[#C5A384] text-[#111111] flex items-center justify-center text-base font-semibold">
+                    FM
+                  </div>
+                  <p className="text-base font-semibold text-[#004B33] truncate">
+                    {t('heroAudience.members')}
+                  </p>
+                </div>
+                <p className="text-sm text-[#111111]/75">
+                  Members and farmers who need clear balances, fair loans, and trust in their cooperative.
+                </p>
+              </div>
             </div>
+
             <p className="text-[#111111]/75 text-base sm:text-lg max-w-2xl">
               {t('heroAudience.p')}
             </p>
