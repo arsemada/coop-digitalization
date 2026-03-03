@@ -40,7 +40,18 @@ export default function ApplyInstitutionPage() {
 
   if (success) {
     return (
-      <div className="mx-auto max-w-2xl rounded-xl border border-champagne/20 bg-white p-12 shadow-lg text-center">
+      <div className="mx-auto max-w-2xl rounded-xl border border-champagne/20 bg-white p-12 shadow-lg text-center relative">
+        {/* Back to Home Button */}
+        <Link
+          to="/landing"
+          className="absolute top-4 right-4 p-2 rounded-lg text-polished/60 hover:text-forest hover:bg-champagne/20 transition-colors"
+          title="Back to Home"
+        >
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+        </Link>
+
         <div className="text-5xl mb-4">✓</div>
         <h2 className="text-2xl font-bold text-forest">Application Submitted</h2>
         <p className="mt-4 text-polished/80">
@@ -48,7 +59,7 @@ export default function ApplyInstitutionPage() {
           When approved, you will receive an OTP to log in and set your password.
         </p>
         <Link
-          to="/"
+          to="/landing"
           className="mt-8 inline-block rounded-lg bg-forest px-6 py-3 font-semibold text-offwhite hover:bg-emerald"
         >
           Back to Home
@@ -58,7 +69,18 @@ export default function ApplyInstitutionPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl rounded-xl border border-champagne/20 bg-white p-8 shadow-lg">
+    <div className="mx-auto max-w-2xl rounded-xl border border-champagne/20 bg-white p-8 shadow-lg relative">
+      {/* Back to Home Button */}
+      <Link
+        to="/landing"
+        className="absolute top-4 right-4 p-2 rounded-lg text-polished/60 hover:text-forest hover:bg-champagne/20 transition-colors"
+        title="Back to Home"
+      >
+        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+      </Link>
+
       <h1 className="text-2xl font-bold text-forest">Apply for Institution Registration</h1>
       <p className="mt-2 text-polished/80">
         SACCOs and Unions: submit your application. When approved, you&apos;ll get an OTP to log in.
@@ -164,7 +186,7 @@ export default function ApplyInstitutionPage() {
         </button>
       </form>
       <p className="mt-6 text-center text-sm text-polished/70">
-        <Link to="/" className="font-medium text-forest hover:text-emerald">Back to Home</Link>
+        <Link to="/landing" className="font-medium text-forest hover:text-emerald">Back to Home</Link>
       </p>
     </div>
   );

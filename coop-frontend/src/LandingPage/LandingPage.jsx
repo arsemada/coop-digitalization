@@ -33,6 +33,7 @@ export default function LandingPage() {
           onNavigate={(section) => setActiveSection(section)}
         />
 
+
         {showHome ? (
           <>
             <HeroSection onNavigate={(section) => setActiveSection(section)} />

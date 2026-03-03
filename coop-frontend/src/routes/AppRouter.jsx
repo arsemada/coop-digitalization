@@ -12,7 +12,9 @@ const DashboardPage = lazy(() => import('../pages/dashboard/DashboardPage'));
 const MembersPage = lazy(() => import('../pages/members/MembersPage'));
 const SavingsPage = lazy(() => import('../pages/savings/SavingsPage'));
 const TransferPage = lazy(() => import('../pages/transfer/TransferPage'));
+const TransactionsPage = lazy(() => import('../pages/transactions/TransactionsPage'));
 const LoansPage = lazy(() => import('../pages/loans/LoansPage'));
+const RepaymentPage = lazy(() => import('../pages/repayment/RepaymentPage'));
 const AccountingPage = lazy(() => import('../pages/accounting/AccountingPage'));
 const ReportsPage = lazy(() => import('../pages/reports/ReportsPage'));
 const InstitutionsPage = lazy(() => import('../pages/institutions/InstitutionsPage'));
@@ -86,10 +88,26 @@ function AppRoutes() {
           ),
         },
         {
+          path: 'transactions',
+          element: (
+            <ProtectedRoute allowedRoles={ROLES.SACCO}>
+              <LazyRoute><TransactionsPage /></LazyRoute>
+            </ProtectedRoute>
+          ),
+        },
+        {
           path: 'loans',
           element: (
             <ProtectedRoute allowedRoles={ROLES.SACCO}>
               <LazyRoute><LoansPage /></LazyRoute>
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: 'repayment',
+          element: (
+            <ProtectedRoute allowedRoles={['MEMBER']}>
+              <LazyRoute><RepaymentPage /></LazyRoute>
             </ProtectedRoute>
           ),
         },
