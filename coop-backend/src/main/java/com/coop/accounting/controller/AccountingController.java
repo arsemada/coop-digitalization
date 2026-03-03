@@ -1,12 +1,17 @@
 package com.coop.accounting.controller;
 
+import com.coop.accounting.dto.GeneralLedgerRow;
+import com.coop.accounting.dto.JournalEntryResponse;
+import com.coop.accounting.dto.MemberLedgerRow;
 import com.coop.accounting.entity.Account;
 import com.coop.accounting.entity.AccountType;
 import com.coop.accounting.entity.JournalEntry;
 import com.coop.accounting.service.AccountingService;
+import com.coop.accounting.service.LedgerService;
 import com.coop.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +26,7 @@ import java.util.Map;
 public class AccountingController {
 
     private final AccountingService accountingService;
+    private final LedgerService ledgerService;
 
     @PostMapping("/entries")
     @ResponseStatus(HttpStatus.CREATED)
@@ -37,11 +43,37 @@ public class AccountingController {
     }
 
     @GetMapping("/entries")
-    public ApiResponse<List<JournalEntry>> listEntries(
+    public ApiResponse<List<JournalEntryResponse>> listEntries(
+            @RequestParam Long institutionId,
+            @RequestParam String start,
+            @RequestParam String end,
+            @RequestParam(required = false) String referenceNumber) {
+        return ApiResponse.success(accountingService.listEntryResponses(institutionId, LocalDate.parse(start), LocalDate.parse(end), referenceNumber));
+    }
+
+    @GetMapping("/entries/{id}")
+    public ResponseEntity<ApiResponse<JournalEntryResponse>> getEntry(@PathVariable Long id) {
+        return accountingService.getEntryResponse(id)
+                .map(e -> ResponseEntity.ok(ApiResponse.success(e)))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error("Entry not found")));
+    }
+
+    @GetMapping("/ledger/member")
+    public ApiResponse<List<MemberLedgerRow>> getMemberLedger(
+            @RequestParam Long memberId,
             @RequestParam Long institutionId,
             @RequestParam String start,
             @RequestParam String end) {
-        return ApiResponse.success(accountingService.listEntries(institutionId, LocalDate.parse(start), LocalDate.parse(end)));
+        return ApiResponse.success(ledgerService.getMemberLedger(memberId, institutionId, LocalDate.parse(start), LocalDate.parse(end)));
+    }
+
+    @GetMapping("/ledger/general")
+    public ApiResponse<List<GeneralLedgerRow>> getGeneralLedger(
+            @RequestParam Long accountId,
+            @RequestParam Long institutionId,
+            @RequestParam String start,
+            @RequestParam String end) {
+        return ApiResponse.success(ledgerService.getGeneralLedger(accountId, institutionId, LocalDate.parse(start), LocalDate.parse(end)));
     }
 
     @PostMapping("/accounts")
@@ -56,7 +88,9 @@ public class AccountingController {
     }
 
     @GetMapping("/accounts")
-    public ApiResponse<List<Account>> listAccounts(@RequestParam Long institutionId) {
-        return ApiResponse.success(accountingService.listAccounts(institutionId));
+    public ApiResponse<List<Account>> listAccounts(
+            @RequestParam Long institutionId,
+            @RequestParam(required = false, defaultValue = "false") boolean activeOnly) {
+        return ApiResponse.success(activeOnly ? accountingService.listAccountsActiveOnly(institutionId) : accountingService.listAccounts(institutionId));
     }
 }

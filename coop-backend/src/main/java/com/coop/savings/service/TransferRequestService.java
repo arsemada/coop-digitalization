@@ -196,9 +196,11 @@ public class TransferRequestService {
         var sourceLiability = source.getLiabilityAccount();
         var destLiability = dest.getLiabilityAccount();
         Long saccoId = source.getMember().getSacco().getId();
+        String sourceCategory = source.getSavingsProduct().getCategory() != null ? source.getSavingsProduct().getCategory().name() : "Regular";
+        String destCategory = dest.getSavingsProduct().getCategory() != null ? dest.getSavingsProduct().getCategory().name() : "Regular";
         var lines = List.of(
-                Map.<String, Object>of("accountId", sourceLiability.getId(), "debit", amount, "credit", BigDecimal.ZERO),
-                Map.<String, Object>of("accountId", destLiability.getId(), "debit", BigDecimal.ZERO, "credit", amount)
+                Map.<String, Object>of("accountId", sourceLiability.getId(), "debit", amount, "credit", BigDecimal.ZERO, "memberId", source.getMember().getId(), "productType", "Savings", "productCategory", sourceCategory),
+                Map.<String, Object>of("accountId", destLiability.getId(), "debit", BigDecimal.ZERO, "credit", amount, "memberId", dest.getMember().getId(), "productType", "Savings", "productCategory", destCategory)
         );
         accountingService.postEntry(saccoId, java.time.LocalDate.now(),
                 "Transfer to " + dest.getMember().getMemberNumber(), "TRANSFER_REQUEST", tr.getId(), lines);

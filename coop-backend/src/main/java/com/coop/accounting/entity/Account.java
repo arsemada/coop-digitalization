@@ -29,4 +29,7 @@ public class Account extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_account_id")
     private Account parentAccount;
+
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive = true;
 }

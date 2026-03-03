@@ -9,4 +9,6 @@ import java.util.List;
 public interface JournalEntryRepository extends JpaRepository<JournalEntry, Long> {
 
     List<JournalEntry> findByInstitutionIdAndEntryDateBetweenOrderByEntryDateAsc(Long institutionId, LocalDate start, LocalDate end);
+
+    List<JournalEntry> findByInstitutionIdAndReferenceNumberContainingIgnoreCaseAndEntryDateBetweenOrderByEntryDateAsc(Long institutionId, String referenceNumber, LocalDate start, LocalDate end);
 }

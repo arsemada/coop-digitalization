@@ -1,26 +1,24 @@
 package com.coop.accounting.dto;
 
-import com.coop.accounting.entity.AccountType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class JournalLineDto {
+public class GeneralLedgerRow {
 
-    private Long accountId;
-    private String accountCode;
+    private LocalDate date;
     private String accountName;
-    private AccountType accountType;
+    private String accountCode;
+    private String description;
     private BigDecimal debit;
     private BigDecimal credit;
-    private Long memberId;
-    private String productType;
-    private String productCategory;
+    private BigDecimal balance;
 }

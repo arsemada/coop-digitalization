@@ -26,4 +26,13 @@ public class JournalLine extends BaseEntity {
 
     @Column(precision = 19, scale = 2)
     private BigDecimal credit = BigDecimal.ZERO;
+
+    @Column(name = "member_id")
+    private Long memberId;
+
+    @Column(name = "product_type", length = 32)
+    private String productType; // Savings, Loan
+
+    @Column(name = "product_category", length = 64)
+    private String productCategory; // Regular, Voluntary, etc.
 }
