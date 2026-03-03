@@ -129,16 +129,18 @@ public class SavingsService {
         var saccoId = account.getMember().getSacco().getId();
         var cashAccount = accountingService.getOrCreateCashAccount(saccoId);
         var liabilityAccount = account.getLiabilityAccount();
+        Long memberId = account.getMember().getId();
+        String productCategory = account.getSavingsProduct().getCategory() != null ? account.getSavingsProduct().getCategory().name() : "Regular";
         List<Map<String, Object>> lines;
         if (request.getType() == TransactionType.DEPOSIT) {
             lines = List.of(
-                    Map.of("accountId", cashAccount.getId(), "debit", amount, "credit", BigDecimal.ZERO),
-                    Map.of("accountId", liabilityAccount.getId(), "debit", BigDecimal.ZERO, "credit", amount)
+                    Map.<String, Object>of("accountId", cashAccount.getId(), "debit", amount, "credit", BigDecimal.ZERO),
+                    Map.<String, Object>of("accountId", liabilityAccount.getId(), "debit", BigDecimal.ZERO, "credit", amount, "memberId", memberId, "productType", "Savings", "productCategory", productCategory)
             );
         } else {
             lines = List.of(
-                    Map.of("accountId", liabilityAccount.getId(), "debit", amount, "credit", BigDecimal.ZERO),
-                    Map.of("accountId", cashAccount.getId(), "debit", BigDecimal.ZERO, "credit", amount)
+                    Map.<String, Object>of("accountId", liabilityAccount.getId(), "debit", amount, "credit", BigDecimal.ZERO, "memberId", memberId, "productType", "Savings", "productCategory", productCategory),
+                    Map.<String, Object>of("accountId", cashAccount.getId(), "debit", BigDecimal.ZERO, "credit", amount)
             );
         }
         String description = request.getType() == TransactionType.DEPOSIT ? "Savings deposit" : "Savings withdrawal";

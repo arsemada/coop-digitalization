@@ -10,5 +10,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     List<Account> findByInstitutionId(Long institutionId);
 
+    List<Account> findByInstitutionIdAndIsActiveTrue(Long institutionId);
+
     Optional<Account> findByInstitutionIdAndCode(Long institutionId, String code);
 }

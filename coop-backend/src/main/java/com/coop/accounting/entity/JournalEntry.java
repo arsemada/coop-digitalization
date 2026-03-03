@@ -19,6 +19,9 @@ public class JournalEntry extends BaseEntity {
     @JoinColumn(name = "institution_id", nullable = false)
     private Institution institution;
 
+    @Column(name = "reference_number", length = 64)
+    private String referenceNumber;
+
     @Column(name = "reference_type")
     private String referenceType; // e.g. SAVINGS_TRANSACTION, LOAN_REPAYMENT
 
@@ -29,6 +32,12 @@ public class JournalEntry extends BaseEntity {
     private LocalDate entryDate;
 
     private String description;
+
+    @Column(name = "total_debit", precision = 19, scale = 2)
+    private java.math.BigDecimal totalDebit = java.math.BigDecimal.ZERO;
+
+    @Column(name = "total_credit", precision = 19, scale = 2)
+    private java.math.BigDecimal totalCredit = java.math.BigDecimal.ZERO;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
