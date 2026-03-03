@@ -18,6 +18,7 @@ export default function MainLayout() {
     { to: '/accounting', label: 'Accounting', roles: ['SUPER_ADMIN', 'UNION_ADMIN', 'SACCO_ADMIN'] },
     { to: '/reports', label: 'Reports', roles: ['SUPER_ADMIN', 'UNION_ADMIN', 'SACCO_ADMIN'] },
     { to: '/institutions', label: 'Institutions', roles: ['SUPER_ADMIN', 'UNION_ADMIN'] },
+    { to: '/contact-messages', label: 'Contact', roles: ['SUPER_ADMIN'] },
     { to: '/settings', label: 'Settings', roles: ['SACCO_ADMIN', 'SACCO_EMPLOYEE', 'UNION_ADMIN'] },
   ].filter((item) => !item.roles || (user?.role && item.roles.includes(user.role)));
 
@@ -26,7 +27,7 @@ export default function MainLayout() {
       <header className="border-b border-champagne/20 bg-forest text-offwhite shadow-md">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
           <Link to="/dashboard" className="font-bold tracking-tight text-offwhite hover:text-champagne transition-colors">
-            Coop<span className="text-champagne">Digital</span>
+            ቀርሺ<span className="text-champagne">Link</span>
           </Link>
           <nav className="flex items-center gap-6">
             {nav.map(({ to, label }) => (

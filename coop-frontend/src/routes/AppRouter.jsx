@@ -16,6 +16,7 @@ const LoansPage = lazy(() => import('../pages/loans/LoansPage'));
 const AccountingPage = lazy(() => import('../pages/accounting/AccountingPage'));
 const ReportsPage = lazy(() => import('../pages/reports/ReportsPage'));
 const InstitutionsPage = lazy(() => import('../pages/institutions/InstitutionsPage'));
+const ContactMessagesPage = lazy(() => import('../pages/contact/ContactMessagesPage'));
 const SettingsPage = lazy(() => import('../pages/settings/SettingsPage'));
 const ApplyInstitutionPage = lazy(() => import('../pages/ApplyInstitutionPage'));
 
@@ -113,6 +114,14 @@ function AppRoutes() {
           element: (
             <ProtectedRoute allowedRoles={ROLES.UNION}>
               <LazyRoute><InstitutionsPage /></LazyRoute>
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: 'contact-messages',
+          element: (
+            <ProtectedRoute allowedRoles={['SUPER_ADMIN']}>
+              <LazyRoute><ContactMessagesPage /></LazyRoute>
             </ProtectedRoute>
           ),
         },
