@@ -41,7 +41,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="rounded-xl border border-champagne/20 bg-white p-8 shadow-lg">
+    <div className="rounded-xl border border-champagne/20 bg-white p-8 shadow-lg relative">
+      {/* Back to Home Button */}
+      <Link
+        to="/landing"
+        className="absolute top-4 right-4 p-2 rounded-lg text-polished/60 hover:text-forest hover:bg-champagne/20 transition-colors group"
+        title="Back to Home"
+      >
+        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+      </Link>
+
       <h1 className="mb-6 text-2xl font-bold text-forest">Sign in</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

@@ -13,7 +13,6 @@ import Contact from './Contact';
 const SECTIONS = {
   features: Features,
   'how-it-works': HowItWorks,
-  mission: Mission,
   impact: ImpactSection,
   faq: FAQ,
   contact: Contact,
@@ -35,6 +34,7 @@ export default function LandingPage() {
       {showHome ? (
         <>
           <HeroSection />
+          <Mission />
           <IntroContent />
         </>
       ) : SectionComponent ? (
