@@ -154,7 +154,6 @@ export default function MainLayout() {
   if (user?.mustChangePassword && !location.pathname.endsWith('/change-password')) {
     return <Navigate to="/change-password" replace />;
   }
-
   const navItems = SIDEBAR_ITEMS.filter(
     (item) => !item.roles || (user?.role && item.roles.includes(user.role))
   );
@@ -187,6 +186,7 @@ export default function MainLayout() {
             ) : (
               <span className="text-xl">ቀር</span>
             )}
+
           </Link>
           <button
             type="button"

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { LanguageProvider } from '../context/LanguageContext';
 import Nav from './Nav';
 import Footer from './Footer';
 import HeroSection from './HeroSection';
@@ -25,28 +26,31 @@ export default function LandingPage() {
   const SectionComponent = activeSection ? SECTIONS[activeSection] : null;
 
   return (
-    <div className="min-h-screen bg-offwhite text-polished">
-      <Nav
-        activeSection={activeSection}
-        onNavigate={(section) => setActiveSection(section)}
-      />
+    <LanguageProvider>
+      <div className="min-h-screen bg-[#F2F0ED] text-[#111111]">
+        <Nav
+          activeSection={activeSection}
+          onNavigate={(section) => setActiveSection(section)}
+        />
 
-      {showHome ? (
-        <>
-          <HeroSection />
-          <Mission />
-          <IntroContent />
-        </>
-      ) : SectionComponent ? (
-        <main className="pt-24 pb-12 min-h-screen">
-          <SectionComponent />
-        </main>
-      ) : null}
 
-      <Footer
-        activeSection={activeSection}
-        onNavigate={(section) => setActiveSection(section)}
-      />
-    </div>
+        {showHome ? (
+          <>
+            <HeroSection onNavigate={(section) => setActiveSection(section)} />
+            <IntroContent />
+            <Mission />
+          </>
+        ) : SectionComponent ? (
+          <main className="pt-24 pb-12 min-h-screen">
+            <SectionComponent />
+          </main>
+        ) : null}
+
+        <Footer
+          activeSection={activeSection}
+          onNavigate={(section) => setActiveSection(section)}
+        />
+      </div>
+    </LanguageProvider>
   );
 }
