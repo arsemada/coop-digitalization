@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../api/client';
 
@@ -405,7 +406,20 @@ export default function AccountingPage() {
           {!coaLoaded ? (
             <p className="text-polished/70">Loading…</p>
           ) : !accounts.length ? (
-            <p className="text-polished/70 py-6">No accounts found. Accounts are created automatically when you record savings (e.g. Cash, Member Savings liability).</p>
+            <div className="py-8 px-4 rounded-lg bg-champagne/10 border border-champagne/30">
+              <p className="font-medium text-polished/90 mb-2">No accounts yet</p>
+              <p className="text-sm text-polished/80 mb-4">Accounts are created automatically when you record savings (e.g. <strong>Cash</strong> and <strong>Member Savings – …</strong> liability accounts). They are not created in advance.</p>
+              <p className="text-sm text-polished/80 mb-4">To see accounts here:</p>
+              <ol className="list-decimal list-inside text-sm text-polished/80 space-y-1 mb-4">
+                <li>Go to <strong>Savings</strong> and create a savings product (if you don’t have one).</li>
+                <li>Open a savings account for a member.</li>
+                <li>Record at least one <strong>deposit</strong> (any amount).</li>
+                <li>Return to Accounting → Chart of Accounts; you should see <strong>Cash</strong> and a <strong>Member Savings</strong> account.</li>
+              </ol>
+              <Link to="/savings" className="inline-flex items-center rounded-lg bg-forest px-4 py-2 font-semibold text-offwhite hover:bg-emerald transition-colors">
+                Go to Savings →
+              </Link>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
