@@ -28,9 +28,18 @@ export default function Nav({ activeSection, onNavigate }) {
         <Link
           to="/landing"
           onClick={goHome}
-          className="text-xl font-bold tracking-tight text-[#004B33] hover:text-[#0A7A54] transition-colors flex items-center gap-1"
+          className="flex items-center gap-3 hover:opacity-80 transition-opacity"
         >
-          ቀርሺ<span className="text-[#0A7A54]">Link</span>
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-white shadow-md border-2 border-[#004B33]/20 flex-shrink-0">
+            <img 
+              src="/logo.png" 
+              alt="SaccoLink Logo" 
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <span className="text-xl font-bold tracking-tight text-[#004B33] hover:text-[#0A7A54] transition-colors">
+            ቀርሺ<span className="text-[#0A7A54]">Link</span>
+          </span>
         </Link>
         <nav className="flex items-center gap-0.5 sm:gap-1 flex-wrap justify-end max-w-full overflow-x-auto">
           {SECTION_IDS.map((id) => (

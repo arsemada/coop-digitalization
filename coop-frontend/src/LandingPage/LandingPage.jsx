@@ -37,8 +37,8 @@ export default function LandingPage() {
         {showHome ? (
           <>
             <HeroSection onNavigate={(section) => setActiveSection(section)} />
-            <IntroContent />
             <Mission />
+            <IntroContent onNavigate={(section) => setActiveSection(section)} />
           </>
         ) : SectionComponent ? (
           <main className="pt-24 pb-12 min-h-screen">

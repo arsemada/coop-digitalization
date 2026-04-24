@@ -179,14 +179,20 @@ export default function MainLayout() {
         <div className="h-14 flex items-center justify-between px-4 border-b border-champagne/20">
           <Link
             to="/dashboard"
-            className="font-bold tracking-tight text-forest hover:text-emerald transition-colors truncate"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
-            {sidebarOpen ? (
-              <>ቀርሺ<span className="text-emerald">Link</span></>
-            ) : (
-              <span className="text-xl">ቀር</span>
+            <div className="w-8 h-8 rounded-full overflow-hidden bg-white shadow-sm border-2 border-forest/20 flex-shrink-0">
+              <img 
+                src="/logo.png" 
+                alt="SaccoLink Logo" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+            {sidebarOpen && (
+              <span className="font-bold tracking-tight text-forest">
+                ቀርሺ<span className="text-emerald">Link</span>
+              </span>
             )}
-
           </Link>
           <button
             type="button"

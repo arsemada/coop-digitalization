@@ -63,7 +63,7 @@ function FieldIcon() {
   );
 }
 
-export default function IntroContent() {
+export default function IntroContent({ onNavigate }) {
   const { t } = useLanguage();
 
   const boxes = [
@@ -108,6 +108,27 @@ export default function IntroContent() {
         <p className="mt-8 text-center text-sm text-[#111111]/60">
           {t('intro.hint')}
         </p>
+
+        {/* CTA Button */}
+        <motion.div
+          className="mt-12 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.5 }}
+        >
+          <button
+            onClick={() => onNavigate('contact')}
+            className="inline-flex items-center gap-2 px-8 py-4 bg-[#004B33] text-white font-semibold rounded-xl hover:bg-[#0A7A54] transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1"
+          >
+            <span>Get Started Today</span>
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </button>
+          <p className="mt-4 text-sm text-[#111111]/60">
+            Have questions? Contact us to learn more about ቀርሺLink
+          </p>
+        </motion.div>
       </div>
     </motion.section>
   );
